@@ -1,0 +1,64 @@
+@startuml Memotions Sequence Diagram
+participant "Android" as AN
+participant "Firebase" as FI
+participant "Common Service" as CO
+participant "Game Service" as GM
+participant "ML Service" as ML
+queue "Pub/Sub" as PS
+database "Database" as DB
+
+== Authentication ==
+AN -> FI: Login
+FI --> AN: Return Auth Token
+AN -> CO: Request with Auth Token
+CO -> FI: Verify Auth Token
+
+== Journal Entry ==
+AN -> CO: Submit Journal Entry
+CO -> DB: Store Raw Entry
+DB --> CO: Entry Stored
+CO -> PS: Publish "journal.created"
+PS --> CO: Event Published
+
+== Gamification Process on Journal Created ==
+PS -> GM: Consume "journal.created"
+GM -> DB: Check Streaks, Points, and Non-Emotion Based Achievements
+alt Achievements Unlocked
+    GM -> PS: Publish "achievement.unlocked"
+else No Achievements Unlocked
+    GM --> PS: No Event Published
+end
+PS -> CO: Consume "achievement.unlocked"
+CO -> FI: Send Achievement Notification
+FI --> AN: Receive Achievement Alert
+
+== Emotion Analysis ==
+PS -> ML: Consume "journal.created"
+ML -> PS: Process and Analyze Data
+ML -> PS: Publish "emotion.analyzed"
+PS -> CO: Consume "emotion.analyzed"
+CO -> DB: Store Emotion Analysis Data
+
+== Gamification Process on Emotion Analyzed ==
+PS -> GM: Consume "emotion.analyzed"
+GM -> DB: Fetch Emotion Analysis Data
+GM -> DB: Check Emotion Based Achievements
+alt Emotion Based Achievements Unlocked
+    GM -> PS: Publish "achievement.unlocked"
+else No Emotion Based Achievements
+    GM --> PS: No Event Published
+end
+PS -> CO: Consume "achievement.unlocked"
+CO -> FI: Send Achievement Notification
+FI --> AN: Receive Achievement Alert
+
+== Feedback Generation ==
+PS -> ML: Consume "emotion.analyzed"
+ML -> PS: Process Feedback
+ML -> PS: Publish "feedback.generated"
+PS -> CO: Consume "feedback.generated"
+CO -> DB: Store Feedback Data
+PS -> CO: Consume "feedback.generated"
+CO -> FI: Send Feedback Notification
+FI --> AN: Receive Feedback Generated Alert
+@enduml

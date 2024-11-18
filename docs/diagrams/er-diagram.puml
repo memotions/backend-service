@@ -1,0 +1,125 @@
+@startuml Memotions ERD
+' Common Entities
+entity User {
+    * id : INT <<PK>>
+    --
+    * name : STRING
+    * email : STRING
+    --
+    * current_level_id : INT <<FK>>
+}
+
+entity Journal {
+    * id : INT <<PK>>
+    --
+    * content : TEXT
+    * date : DATE
+    * is_favourite : BOOLEAN
+    * updated_at : TIMESTAMP
+    * created_at : TIMESTAMP
+    --
+    * user_id : INT <<FK>>
+    tag_id : INT <<FK>>
+}
+
+entity Tag {
+    * id : INT <<PK>>   
+    --
+    * name : STRING
+    * description : STRING
+}
+
+entity JournalTag {
+    * journal_id : INT <<PK, FK>>
+    * tag_id : INT <<PK, FK>>
+}
+
+' Machine Learning Related Entities
+entity EmotionCategory {
+    * id : INT <<PK>>
+    --
+    * name : STRING
+    * description : STRING
+}
+
+entity JournalEmotion {
+    * id : INT <<PK>>
+    --
+    * confidence_score : FLOAT
+    * analyzed_at : TIMESTAMP
+    --
+    * journal_id : INT <<FK>>
+    * emotion_category_id : INT <<FK>>
+}
+
+entity JournalFeedback {
+    * journal_id : INT <<PK, FK>>
+    --
+    * content : TEXT
+    * generated_at : TIMESTAMP
+}
+
+' Gamification Related Entities
+entity Achievement {
+    * id : INT <<PK>>
+    --
+    * name : STRING
+    * description : STRING
+    * criteria : STRING
+    * tier : INT
+    * points : INT
+}
+
+entity UserAchievement {
+    * user_id : INT <<PK, FK>>
+    * achievement_id : INT <<PK, FK>>
+    --
+    * unlocked_at : TIMESTAMP
+}
+
+entity UserStreak {
+    * user_id : INT <<PK, FK>>
+    --
+    * start_date : DATE
+    * end_date : DATE
+    * streak_length : INT
+    * updated_at : TIMESTAMP
+}
+
+entity UserPoint {
+    * user_id : INT <<PK, FK>>
+    --
+    * earned_points : INT
+    * earned_at : TIMESTAMP
+    * points_earning_category : PointEarningCategory
+}
+
+enum PointEarningCategory {
+    JOURNAL_ENTRY
+    STREAK_BONUS
+    ACHIEVEMENT_UNLOCK
+}
+
+entity Level {
+    * id : INT <<PK>>
+    --
+    * number : INT
+    * min_points : INT
+    * max_points : INT
+}
+
+' Relationships
+User ||--|{ Journal
+Journal ||--|{ JournalTag
+Tag ||--|{ JournalTag
+Journal ||--|{ JournalEmotion
+EmotionCategory ||--|{ JournalEmotion
+Journal ||--|| JournalFeedback
+User ||--|{ UserAchievement
+Achievement ||--|{ UserAchievement
+User ||--|| UserStreak
+User ||--|{ UserPoint
+PointEarningCategory ||--|{ UserPoint
+Level ||--|{ User
+
+@enduml

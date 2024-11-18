@@ -1,0 +1,15 @@
+{
+    "extends": "airbnb-base",
+    "overrides": [
+        {
+            "files": [
+                "*.js",
+                "*.ts"
+            ],
+            "excludedFiles": [
+                "node_modules/**",
+                "dist/**"
+            ]
+        }
+    ]
+}
