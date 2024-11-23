@@ -6,8 +6,7 @@
     "overrides": [
         {
             "files": [
-                "*.js",
-                "*.ts"
+                "src/**/*.{js,ts}"
             ],
             "excludedFiles": [
                 "node_modules/**",
@@ -22,6 +21,14 @@
             {
                 "js": "never",
                 "ts": "never"
+            }
+        ],
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": [
+                    "drizzle.config.ts"
+                ]
             }
         ]
     },
