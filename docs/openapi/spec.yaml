@@ -1,0 +1,538 @@
+openapi: 3.0.0
+info:
+  title: Memotions API
+  version: 1.0.0
+  description: API for Memotions—Journaling application with gamification and machine learning features
+externalDocs:
+  url: https://github.com/memotions/backend-service
+  description: Memotions API Repository
+servers:
+  - url: http://localhost:8080
+    description: Memotions API Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        username:
+          type: string
+    Journal:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        emotions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              confidence:
+                type: number
+        feedback:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Emotion:
+      type: object
+      properties:
+        class:
+          type: string
+        confidence:
+          type: number
+        analyzedAt:
+          type: string
+          format: date-time
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        tier:
+          type: string
+          enum:
+            - BRONZE
+            - SILVER
+            - GOLD
+            - SPECIAL
+        pointsAwarded:
+          type: integer
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+    Streak:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        streakLength:
+          type: integer
+    Stats:
+      type: object
+      properties:
+        totalJournals:
+          type: integer
+        currentStreak:
+          $ref: '#/components/schemas/Streak'
+        longestStreak:
+          $ref: '#/components/schemas/Streak'
+        totalPoints:
+          type: integer
+        currentLevel:
+          type: integer
+        achievements:
+          type: object
+          properties:
+            completed:
+              type: integer
+            total:
+              type: integer
+        emotions:
+          type: object
+          properties:
+            happy:
+              type: integer
+            sad:
+              type: integer
+            angry:
+              type: integer
+            scared:
+              type: integer
+            neutral:
+              type: integer
+    CommonError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    ValidationError:
+      type: object
+      properties:
+        code:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+  /auth/login:
+    post:
+      summary: Login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+  /user:
+    get:
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+  /journals:
+    get:
+      summary: Get current user journals
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: title
+          schema:
+            type: string
+          required: false
+          description: Title to filter journals by
+          example: 'Rabu yang cerah'
+        - in: query
+          name: search
+          schema:
+            type: string
+          required: false
+          description: Search query for journals
+        - in: query
+          name: tags
+          schema:
+            type: string
+          required: false
+          description: Comma-separated list of tag IDs
+          example: 'sekolah,kerja'
+        - in: query
+          name: emotions
+          schema:
+            type: string
+          required: false
+          description: Comma-separated list of emotion classes
+          example: '1,2'
+        - in: query
+          name: startDate
+          schema:
+            type: string
+          required: false
+          description: Start date for filtering journals
+          example: '2023-01-01'
+        - in: query
+          name: endDate
+          schema:
+            type: string
+          required: false
+          description: End date for filtering journals
+          example: '2023-12-31'
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: Maximum number of journals to retrieve
+          example: 10
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          required: false
+          description: Field to sort journals by
+          example: 'title'
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+          required: false
+          description: Order to sort journals by
+          example: 'asc'
+      responses:
+        '200':
+          description: Journals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Journal'
+        '401':
+          description: Unauthorized
+    post:
+      summary: Create a new journal
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                tagIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '201':
+          description: Journal created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Journal'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+  /journals/{journalId}:
+    get:
+      summary: Get a journal by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Journal retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Journal'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal not found
+  /journals/{journalId}/tags:
+    get:
+      summary: Get all tags for a journal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tags retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal not found
+  /journals/{journalId}/tags/{tagId}:
+    delete:
+      summary: Delete a tag from a journal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Journal's tag deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal or tag not found
+  /tags:
+    get:
+      summary: Get current user tags
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tags retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+        '401':
+          description: Unauthorized
+  /tags/{tagId}:
+    delete:
+      summary: Delete a tag
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Tag deleted successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Tag not found
+  /achievements:
+    get:
+      summary: Get current user achievements
+      responses:
+        '200':
+          description: Achievements retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Achievement'
+  /achievements/{achievementId}:
+    get:
+      summary: Get an achievement by ID
+      parameters:
+        - name: achievementId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Achievement retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Achievement'
+        '404':
+          description: Achievement not found
+  /streak:
+    get:
+      summary: Get current user streak
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Streak retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Streak'
+        '401':
+          description: Unauthorized
+  /emotions:
+    get:
+      summary: Get all user emotions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Emotions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Emotion'
+        '401':
+          description: Unauthorized
+  /stats:
+    get:
+      summary: Get current user stats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+        '401':
+          description: Unauthorized
