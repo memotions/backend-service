@@ -11,8 +11,9 @@ import {
 } from '../validators/users.validator';
 import { z } from 'zod';
 import { handleZodError } from '../utils/handleZodError';
+import ApiError from '../utils/apiError';
 
-export const register = async (req: Request, res: Response) => {
+export const registerController = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = RegisterUserSchema.parse(req.body);
 
@@ -34,18 +35,25 @@ export const register = async (req: Request, res: Response) => {
         errors,
       };
       res.status(400).json(response);
+    } else if (error instanceof ApiError) {
+      const response: AuthResponse = {
+        status: 'error',
+        data: null,
+        errors: [{ code: error.code, message: error.message }],
+      };
+      res.status(error.statusCode).json(response);
     } else {
       const response: AuthResponse = {
         status: 'error',
         data: null,
-        errors: [{ code: 'SERVER_ERROR', message: 'Error registering user' }],
+        errors: [{ code: 'SERVER_ERROR', message: 'Server error' }],
       };
       res.status(500).json(response);
     }
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const loginController = async (req: Request, res: Response) => {
   try {
     const { email, password } = LoginUserSchema.parse(req.body);
 
@@ -54,17 +62,36 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'User logged in successfully', user });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res
-        .status(400)
-        .json({ message: 'Validation error', errors: error.errors });
+      const errors = handleZodError(error);
+
+      const response: AuthResponse = {
+        status: 'error',
+        data: null,
+        errors,
+      };
+      res.status(400).json(response);
+    } else if (error instanceof ApiError) {
+      const response: AuthResponse = {
+        status: 'error',
+        data: null,
+        errors: [{ code: error.code, message: error.message }],
+      };
+      res.status(error.statusCode).json(response);
     } else {
-      console.error('Error logging in user:', error);
-      res.status(500).json({ message: 'Error logging in user' });
+      const response: AuthResponse = {
+        status: 'error',
+        data: null,
+        errors: [{ code: 'SERVER_ERROR', message: 'Server error' }],
+      };
+      res.status(500).json(response);
     }
   }
 };
 
-export const loginWithGoogle = async (req: Request, res: Response) => {
+export const loginWithGoogleController = async (
+  req: Request,
+  res: Response,
+) => {
   const { id } = req.user as { id: number };
   const user = await loginUserWithGoogle(id);
 

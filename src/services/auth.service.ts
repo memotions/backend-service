@@ -5,6 +5,7 @@ import { VerifiedCallback } from 'passport-jwt';
 import { VerifyCallback } from 'passport-google-oauth20';
 import db from '../db';
 import { users } from '../db/schema/users.schema';
+import ApiError from '../utils/apiError';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
@@ -21,7 +22,7 @@ export const registerUser = async (
   const [user] = await db.select().from(users).where(eq(users.email, email));
 
   if (user) {
-    throw new Error('User already exists');
+    throw new ApiError('USER_ALREADY_EXISTS', 409, 'User already exists');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -47,13 +48,13 @@ export const loginUser = async (email: string, password: string) => {
   const [user] = await db.select().from(users).where(eq(users.email, email));
 
   if (!user) {
-    throw new Error('User not found');
+    throw new ApiError('USER_NOT_FOUND', 404, 'User not found');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password!);
 
   if (!isPasswordValid) {
-    throw new Error('Invalid password');
+    throw new ApiError('INVALID_CREDENTIALS', 401, 'Invalid credentials');
   }
 
   return {
