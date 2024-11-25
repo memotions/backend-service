@@ -15,6 +15,11 @@
         }
     ],
     "rules": {
+        "arrow-body-style": [
+            "always",
+            "as-needed"
+        ],
+        "object-curly-newline": "off",
         "import/extensions": [
             "error",
             "ignorePackages",
