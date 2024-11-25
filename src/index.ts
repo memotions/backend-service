@@ -1,10 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import 'dotenv/config';
+import passport from 'passport';
 import Logger from './utils/logger';
 import httpLogger from './middlewares/httpLogger';
-
-dotenv.config();
+import authRoutes from './routes/auth.routes';
+import './config/passport.config';
 
 const app = express();
 
@@ -12,6 +13,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(httpLogger);
+app.use(passport.initialize());
+
+app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
