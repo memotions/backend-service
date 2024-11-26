@@ -43,3 +43,8 @@ const AuthResponseSchema = createResponseSchema(
 );
 
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+
+export const ExpressUserSchema = z.object({
+  id: z.number(),
+});
+export type ExpressUser = z.infer<typeof ExpressUserSchema>;

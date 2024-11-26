@@ -5,7 +5,9 @@ import passport from 'passport';
 import Logger from './utils/logger';
 import httpLogger from './middlewares/httpLogger';
 import authRoutes from './routes/auth.routes';
+import journalsRoutes from './routes/journals.routes';
 import './config/passport.config';
+import { auth } from './middlewares/auth';
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.use(httpLogger);
 app.use(passport.initialize());
 
 app.use('/auth', authRoutes);
+app.use(auth);
+app.use('/journals', journalsRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({

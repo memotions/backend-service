@@ -7,7 +7,6 @@ import {
   date,
   timestamp,
   text,
-  primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
@@ -26,17 +25,15 @@ export const journals = pgTable('journals', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
-export const journalFeedbacks = pgTable(
-  'journal_feedbacks',
-  {
-    journalId: integer('journal_id')
-      .notNull()
-      .references(() => journals.id),
-    feedback: text('feedback').notNull(),
-    createdAt: timestamp('created_at').notNull().defaultNow(),
-  },
-  (table) => [primaryKey({ columns: [table.journalId] })],
-);
+export const journalFeedbacks = pgTable('journal_feedbacks', {
+  id: serial('id').primaryKey(),
+  journalId: integer('journal_id')
+    .notNull()
+    .references(() => journals.id)
+    .unique(),
+  feedback: text('feedback').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
 
 export const journalsRelations = relations(journals, ({ one, many }) => ({
   user: one(users, {
@@ -45,5 +42,18 @@ export const journalsRelations = relations(journals, ({ one, many }) => ({
   }),
   tags: many(journalTags),
   emotions: many(emotionAnalysis),
-  feedbacks: one(journalFeedbacks),
+  feedback: one(journalFeedbacks, {
+    fields: [journals.id],
+    references: [journalFeedbacks.journalId],
+  }),
 }));
+
+export const journalFeedbacksRelations = relations(
+  journalFeedbacks,
+  ({ one }) => ({
+    journal: one(journals, {
+      fields: [journalFeedbacks.journalId],
+      references: [journals.id],
+    }),
+  }),
+);
