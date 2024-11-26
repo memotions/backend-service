@@ -59,7 +59,12 @@ export const loginController = async (req: Request, res: Response) => {
 
     const user = await loginUser(email, password);
 
-    res.status(200).json({ message: 'User logged in successfully', user });
+    const response: AuthResponse = {
+      status: 'success',
+      data: user,
+      errors: null,
+    };
+    res.status(200).json(response);
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors = handleZodError(error);
