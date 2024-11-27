@@ -2,10 +2,7 @@ import 'dotenv/config';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import passport from 'passport';
-import {
-  googleVerifyCallback,
-  jwtVerifyCallback,
-} from '../services/auth.service';
+import AuthService from '../services/auth.service';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
@@ -18,7 +15,7 @@ passport.use(
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: JWT_SECRET,
     },
-    jwtVerifyCallback,
+    AuthService.jwtVerifyCallback,
   ),
 );
 
@@ -29,6 +26,6 @@ passport.use(
       clientSecret: GOOGLE_CLIENT_SECRET,
       callbackURL: GOOGLE_REDIRECT_URL,
     },
-    googleVerifyCallback,
+    AuthService.googleVerifyCallback,
   ),
 );

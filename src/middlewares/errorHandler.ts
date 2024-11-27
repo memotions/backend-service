@@ -1,10 +1,11 @@
+import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { Error } from '../validators/response.validator';
-import { fromZodError } from 'zod-validation-error';
+import AppError from '../utils/appError';
+import { ErrorDetails, ErrorResponse } from '../types/response.types';
 
-export const handleZodError = (error: z.ZodError): Error[] => {
-  return error.issues.map((issue) => {
-    let details: Record<string, any> | undefined = undefined;
+const zodErrorHandler = (error: z.ZodError): ErrorDetails[] =>
+  error.issues.map(issue => {
+    let details: Record<string, any> | undefined;
     switch (issue.code) {
       case 'invalid_type':
         details = {
@@ -63,7 +64,7 @@ export const handleZodError = (error: z.ZodError): Error[] => {
 
       case 'invalid_union':
         details = {
-          unionErrors: issue.unionErrors.map((err) => err.message),
+          unionDeErrorDetailss: issue.unionErrors.map(err => err.message),
         };
         break;
 
@@ -86,9 +87,44 @@ export const handleZodError = (error: z.ZodError): Error[] => {
 
     return {
       message: issue.message,
-      code: issue.code,
+      code: issue.code.toUpperCase(),
       path: issue.path.length ? issue.path.map(String) : undefined,
       details,
     };
   });
+
+const errorHandler = (
+  error: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (error instanceof z.ZodError) {
+    const errors = zodErrorHandler(error);
+
+    const response: ErrorResponse = {
+      status: 'error',
+      data: null,
+      errors,
+    };
+    res.status(400).json(response);
+  } else if (error instanceof AppError) {
+    const response: ErrorResponse = {
+      status: 'error',
+      data: null,
+      errors: [{ code: error.code, message: error.message }],
+    };
+    res.status(error.statusCode).json(response);
+  } else if (error instanceof Error) {
+    const response: ErrorResponse = {
+      status: 'error',
+      data: null,
+      errors: [{ code: 'SERVER_ERROR', message: 'Server error' }],
+    };
+    res.status(500).json(response);
+  } else {
+    next(error);
+  }
 };
+
+export default errorHandler;

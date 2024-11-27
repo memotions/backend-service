@@ -9,8 +9,13 @@
     "strict": true,
     "noImplicitAny": false,
     "strictNullChecks": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

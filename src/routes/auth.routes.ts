@@ -1,15 +1,13 @@
 import { Router } from 'express';
 import passport from 'passport';
-import {
-  registerController,
-  loginController,
-  loginWithGoogleController,
-} from '../controllers/auth.controller';
+import AuthController from '../controllers/auth.controller';
+import authHandler from '../middlewares/authHandler';
 
 const router = Router();
 
-router.post('/register', registerController);
-router.post('/login', loginController);
+router.post('/register', AuthController.register);
+router.post('/login', AuthController.login);
+router.get('/profile', authHandler, AuthController.getProfile);
 router.get(
   '/google',
   passport.authenticate('google', { scope: ['profile', 'email'] }),
@@ -19,7 +17,7 @@ router.get(
   passport.authenticate('google', {
     session: false,
   }),
-  loginWithGoogleController,
+  AuthController.loginWithGoogle,
 );
 
 export default router;

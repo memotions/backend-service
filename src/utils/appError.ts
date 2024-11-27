@@ -1,6 +1,8 @@
-export default class ApiError extends Error {
+export default class AppError extends Error {
   code: string;
+
   statusCode: number;
+
   details?: { [key: string]: any };
 
   constructor(

@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
-import { AuthResponse } from '../validators/users.validator';
+import { AuthResponse } from '../types/users.types';
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
-  passport.authenticate('jwt', (err: any, user: any, info: any) => {
+const authHandler = (req: Request, res: Response, next: NextFunction) => {
+  passport.authenticate('jwt', (err: any, user: any) => {
     if (err) {
       return next(err);
     }
@@ -18,6 +18,8 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
     }
 
     req.user = user;
-    next();
+    return next();
   })(req, res, next);
 };
+
+export default authHandler;

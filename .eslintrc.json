@@ -1,6 +1,7 @@
 {
     "extends": [
-        "airbnb-base"
+        "airbnb-base",
+        "prettier"
     ],
     "parser": "@typescript-eslint/parser",
     "overrides": [
@@ -15,11 +16,6 @@
         }
     ],
     "rules": {
-        "arrow-body-style": [
-            "always",
-            "as-needed"
-        ],
-        "object-curly-newline": "off",
         "import/extensions": [
             "error",
             "ignorePackages",
