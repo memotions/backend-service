@@ -1,11 +1,11 @@
 import { and, eq } from 'drizzle-orm';
 import db from '../db';
 import { tags } from '../db/schema/tags.schema';
-import { CreateTag, Tag } from '../types/tags.types';
+import { AddTag, Tag } from '../types/tags.types';
 import AppError from '../utils/appError';
 
 export default class TagsService {
-  public static async createTag(userId: number, tag: CreateTag): Promise<Tag> {
+  public static async addTag(userId: number, tag: AddTag): Promise<Tag> {
     const [existingTag] = await db
       .select()
       .from(tags)
@@ -41,7 +41,10 @@ export default class TagsService {
     return tag;
   }
 
-  public static async deleteTag(userId: number, tagId: number): Promise<Tag> {
+  public static async deleteTagById(
+    userId: number,
+    tagId: number,
+  ): Promise<Tag> {
     const [deletedTag] = await db
       .delete(tags)
       .where(and(eq(tags.userId, userId), eq(tags.id, tagId)))

@@ -1,28 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
-import {
-  CreateTagSchema,
-  TagResponse,
-  TagsResponse,
-} from '../types/tags.types';
+import { AddTagSchema, TagResponse, TagsResponse } from '../types/tags.types';
 import { User } from '../types/users.types';
 import TagsService from '../services/tags.service';
 
 export default class TagsController {
-  public static async createTag(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  public static async addTag(req: Request, res: Response, next: NextFunction) {
     try {
       const { id: userId } = req.user as User;
-      const tag = CreateTagSchema.parse(req.body);
+      const tag = AddTagSchema.parse(req.body);
 
       tag.name = tag.name
         .toLowerCase()
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
 
-      const newTag = await TagsService.createTag(userId, tag);
+      const newTag = await TagsService.addTag(userId, tag);
 
       const response: TagResponse = {
         status: 'success',
@@ -78,7 +70,7 @@ export default class TagsController {
     }
   }
 
-  public static async deleteTag(
+  public static async deleteTagById(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -87,7 +79,7 @@ export default class TagsController {
       const { id: userId } = req.user as User;
       const tagId = Number(req.params.tagId);
 
-      const deletedTag = await TagsService.deleteTag(userId, Number(tagId));
+      const deletedTag = await TagsService.deleteTagById(userId, Number(tagId));
       const response: TagResponse = {
         status: 'success',
         data: deletedTag,
