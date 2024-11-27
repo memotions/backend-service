@@ -15,6 +15,8 @@ export const ResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
   });
 
 export const ErrorResponseSchema = ResponseSchema(z.unknown());
+export const DefaultResponseSchema = ResponseSchema(z.unknown());
 
 export type ErrorDetails = z.infer<typeof ErrorDetailsSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
+export type DefaultResponse = z.infer<typeof DefaultResponseSchema>;

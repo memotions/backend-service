@@ -25,9 +25,11 @@ export const journalTags = pgTable(
       .references(() => journals.id),
     tagId: integer('tag_id')
       .notNull()
-      .references(() => tags.id),
+      .references(() => tags.id, {
+        onDelete: 'cascade',
+      }),
   },
-  (table) => [primaryKey({ columns: [table.journalId, table.tagId] })],
+  table => [primaryKey({ columns: [table.journalId, table.tagId] })],
 );
 
 export const tagsRelations = relations(tags, ({ one, many }) => ({
