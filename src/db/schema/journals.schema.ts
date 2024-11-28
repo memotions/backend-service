@@ -20,8 +20,9 @@ export const journals = pgTable('journals', {
     .references(() => users.id),
   title: varchar('title').notNull(),
   content: varchar('content').notNull(),
-  date: date('date').notNull(),
+  date: date('date', { mode: 'date' }).notNull().defaultNow(),
   starred: boolean('starred').notNull().default(false),
+  deleted: boolean('deleted').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
@@ -41,7 +42,7 @@ export const journalsRelations = relations(journals, ({ one, many }) => ({
     references: [users.id],
   }),
   tags: many(journalTags),
-  emotions: many(emotionAnalysis),
+  emotionAnalysis: many(emotionAnalysis),
   feedback: one(journalFeedbacks, {
     fields: [journals.id],
     references: [journalFeedbacks.journalId],

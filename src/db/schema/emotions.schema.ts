@@ -2,9 +2,9 @@ import {
   pgTable,
   serial,
   integer,
-  numeric,
   timestamp,
   varchar,
+  decimal,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { journals } from './journals.schema';
@@ -22,8 +22,8 @@ export const emotionAnalysis = pgTable('emotion_analysis', {
   emotionId: integer('emotion_id')
     .notNull()
     .references(() => emotions.id),
-  confidence: numeric('confidence').notNull(),
-  analyzedAt: timestamp('analyzed_at').notNull(),
+  confidence: decimal('confidence').notNull(),
+  analyzedAt: timestamp('analyzed_at').notNull().defaultNow(),
 });
 
 export const emotionsRelations = relations(emotions, ({ many }) => ({
