@@ -13,7 +13,7 @@ export const JournalFeedbackSchema = createSelectSchema(journalFeedbacks).omit({
 });
 
 export const JournalSchema = SelectJournalSchema.extend({
-  tags: TagSchema.omit({ userId: true }).array(),
+  tags: TagSchema.array(),
   feedback: JournalFeedbackSchema,
   emotionAnalysis: z.array(EmotionAnalysisSchema),
 }).omit({

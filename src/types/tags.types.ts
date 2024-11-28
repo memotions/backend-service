@@ -3,7 +3,9 @@ import { z } from 'zod';
 import { tags } from '../db/schema/tags.schema';
 import { ResponseSchema } from './response.types';
 
-export const TagSchema = createSelectSchema(tags);
+export const TagSchema = createSelectSchema(tags).omit({
+  userId: true,
+});
 export const AddTagSchema = createInsertSchema(tags).omit({
   userId: true,
 });

@@ -8,6 +8,7 @@ import {
   ilike,
   inArray,
   lte,
+  not,
   or,
   SQL,
 } from 'drizzle-orm';
@@ -17,6 +18,7 @@ import { journalTags, tags } from '../db/schema/tags.schema';
 import { AddJournal, Journal, QueryJournal } from '../types/journals.types';
 import AppError from '../utils/appError';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
+import { Tag } from '../types/tags.types';
 
 export default class JournalsService {
   public static async addJournal(
@@ -46,6 +48,7 @@ export default class JournalsService {
 
       await db.insert(journalTags).values(
         journal.tagIds.map((tagId: number) => ({
+          userId,
           journalId: newJournal.id,
           tagId,
         })),
@@ -168,7 +171,10 @@ export default class JournalsService {
     return allJournals;
   }
 
-  public static async findJournalById(userId: number, journalId: number) {
+  public static async findJournalById(
+    userId: number,
+    journalId: number,
+  ): Promise<Journal> {
     const [journal] = await this.findJournals(userId, {
       id: journalId,
       limit: 1,
@@ -181,61 +187,102 @@ export default class JournalsService {
     return journal;
   }
 
-  public static async deleteJournalById(userId: number, journalId: number) {
+  public static async deleteJournalById(
+    userId: number,
+    journalId: number,
+  ): Promise<void> {
     const [deletedJournal] = await db
       .delete(journals)
-      .where(eq(journals.id, journalId))
+      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)))
       .returning();
 
     if (!deletedJournal) {
       throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
     }
-
-    return deletedJournal;
   }
 
-  public static async addJournalTags(
+  public static async toggleStarJournal(
     userId: number,
     journalId: number,
-    tagIds: number[],
-  ) {
-    await db.insert(journalTags).values(
-      tagIds.map((tagId: number) => ({
-        journalId,
-        tagId,
-      })),
-    );
+  ): Promise<void> {
+    const [starredJournal] = await db
+      .update(journals)
+      .set({ starred: not(journals.starred) })
+      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)))
+      .returning();
+
+    if (!starredJournal) {
+      throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
+    }
   }
 
-  public static async findJournalTags(userId: number, journalId: number) {
-    const allJournalTags = await db
-      .select()
-      .from(journalTags)
-      .where(
-        and(eq(journalTags.journalId, journalId), eq(tags.userId, userId)),
-      );
+  public static async findJournalTags(
+    userId: number,
+    journalId: number,
+  ): Promise<Tag[]> {
+    const raw = await db.query.journalTags.findMany({
+      where: and(eq(journalTags.journalId, journalId), eq(tags.userId, userId)),
+      with: {
+        tag: true,
+      },
+      columns: {
+        userId: false,
+        journalId: false,
+        tagId: false,
+      },
+    });
+
+    if (!raw) {
+      throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
+    }
+
+    const allJournalTags = raw.map(journalTag => ({
+      id: journalTag.tag.id,
+      name: journalTag.tag.name,
+    }));
 
     return allJournalTags;
   }
 
-  public static async deleteJournalTagById(
+  public static async toggleJournalTag(
     userId: number,
     journalId: number,
     tagId: number,
-  ) {
-    const [deletedJournalTags] = await db
-      .delete(journalTags)
-      .where(
-        and(
+  ): Promise<void> {
+    const journal = await db.query.journals.findFirst({
+      where: and(eq(journals.id, journalId), eq(journals.userId, userId)),
+    });
+
+    if (!journal) {
+      throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
+    }
+
+    const tag = await db.query.tags.findFirst({
+      where: eq(tags.id, tagId),
+    });
+
+    if (!tag) {
+      throw new AppError('TAG_NOT_FOUND', 404, 'Tag not found');
+    }
+
+    const existingJournalTag = await db.query.journalTags.findFirst({
+      where: and(
+        eq(journalTags.journalId, journalId),
+        eq(journalTags.tagId, tagId),
+      ),
+    });
+
+    if (existingJournalTag) {
+      await db
+        .delete(journalTags)
+        .where(
           and(
             eq(journalTags.journalId, journalId),
             eq(journalTags.tagId, tagId),
           ),
-          eq(tags.userId, userId),
-        ),
-      )
-      .returning();
-
-    return deletedJournalTags;
+        );
+    } else {
+      await db.insert(journalTags).values({ journalId, tagId, userId });
+    }
   }
 }

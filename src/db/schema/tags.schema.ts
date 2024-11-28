@@ -28,6 +28,9 @@ export const journalTags = pgTable(
       .references(() => tags.id, {
         onDelete: 'cascade',
       }),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id),
   },
   table => [primaryKey({ columns: [table.journalId, table.tagId] })],
 );

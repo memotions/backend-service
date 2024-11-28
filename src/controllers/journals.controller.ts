@@ -84,17 +84,26 @@ export default class JournalsController {
       const { id: userId } = req.user as User;
       const journalId = Number(req.params.journalId);
 
-      const deletedJournal = await JournalsService.deleteJournalById(
-        userId,
-        journalId,
-      );
+      await JournalsService.deleteJournalById(userId, journalId);
 
-      const response: DefaultResponse<Journal | any> = {
-        status: 'success',
-        data: deletedJournal,
-        errors: null,
-      };
-      res.status(200).json(response);
+      res.status(204);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async toggleStarJournal(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+
+      await JournalsService.toggleStarJournal(userId, journalId);
+
+      res.status(204);
     } catch (error) {
       next(error);
     }
@@ -125,34 +134,7 @@ export default class JournalsController {
     }
   }
 
-  public static async addJournalTags(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
-    try {
-      const { id: userId } = req.user as User;
-      const journalId = Number(req.params.journalId);
-      const { tagIds } = req.body;
-
-      const journalTags = await JournalsService.addJournalTags(
-        userId,
-        journalId,
-        tagIds,
-      );
-
-      const response: DefaultResponse<Journal | any> = {
-        status: 'success',
-        data: journalTags,
-        errors: null,
-      };
-      res.status(200).json(response);
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  public static async deleteJournalTagById(
+  public static async toggleJournalTag(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -162,7 +144,7 @@ export default class JournalsController {
       const journalId = Number(req.params.journalId);
       const tagId = Number(req.params.tagId);
 
-      const deletedJournalTag = await JournalsService.deleteJournalTagById(
+      const journalTags = await JournalsService.toggleJournalTag(
         userId,
         journalId,
         tagId,
@@ -170,7 +152,7 @@ export default class JournalsController {
 
       const response: DefaultResponse<Journal | any> = {
         status: 'success',
-        data: deletedJournalTag,
+        data: journalTags,
         errors: null,
       };
       res.status(200).json(response);

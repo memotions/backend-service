@@ -7,11 +7,8 @@ router.post('/', JournalsController.addJournal);
 router.get('/', JournalsController.findJournals);
 router.get('/:journalId', JournalsController.findJournalById);
 router.delete('/:journalId', JournalsController.deleteJournalById);
+router.patch('/:journalId/star', JournalsController.toggleStarJournal);
 router.get('/:journalId/tags', JournalsController.findJournalTags);
-router.post('/:journalId/tags', JournalsController.addJournalTags);
-router.delete(
-  '/:journalId/tags/:tagId',
-  JournalsController.deleteJournalTagById,
-);
+router.patch('/:journalId/tags/:tagId', JournalsController.toggleJournalTag);
 
 export default router;
