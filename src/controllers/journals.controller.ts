@@ -1,35 +1,181 @@
-import { Request, Response } from 'express';
-import { CreateJournalSchema } from '../validators/journals.validator';
-import { createJournal } from '../services/journals.service';
-import { handleZodError } from '../utils/handleZodError';
-import { z } from 'zod';
-import Logger from '../utils/logger';
-import ApiError from '../utils/apiError';
+import { NextFunction, Request, Response } from 'express';
+import {
+  AddJournalSchema,
+  Journal,
+  QueryJournalSchema,
+} from '../types/journals.types';
+import JournalsService from '../services/journals.service';
+import { DefaultResponse } from '../types/response.types';
+import { User } from '../types/users.types';
 
-export const createJournalController = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.user as { id: number };
-    const journal = CreateJournalSchema.parse(req.body);
+export default class JournalsController {
+  public static async addJournal(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journal = AddJournalSchema.parse(req.body);
 
-    const newJournal = await createJournal(id, journal);
+      const newJournal = await JournalsService.addJournal(userId, journal);
 
-    res.status(201).json(newJournal);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      const errors = handleZodError(error);
-
-      Logger.error(errors);
-    } else if (error instanceof ApiError) {
-      Logger.error(error.message);
-    } else {
-      Logger.error(error);
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: newJournal,
+        errors: null,
+      };
+      res.status(201).json(response);
+    } catch (error) {
+      next(error);
     }
   }
-};
 
-export const getJournalsController = async (req: Request, res: Response) => {};
+  public static async findJournals(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const query = QueryJournalSchema.parse(req.query);
 
-export const getJournalByIdController = async (
-  req: Request,
-  res: Response,
-) => {};
+      const journals = await JournalsService.findJournals(userId, query);
+
+      const response: DefaultResponse<Journal[] | any> = {
+        status: 'success',
+        data: journals,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async findJournalById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+
+      const journal = await JournalsService.findJournalById(userId, journalId);
+
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: journal,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async deleteJournalById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+
+      const deletedJournal = await JournalsService.deleteJournalById(
+        userId,
+        journalId,
+      );
+
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: deletedJournal,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async findJournalTags(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+
+      const journalTags = await JournalsService.findJournalTags(
+        userId,
+        journalId,
+      );
+
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: journalTags,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async addJournalTags(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+      const { tagIds } = req.body;
+
+      const journalTags = await JournalsService.addJournalTags(
+        userId,
+        journalId,
+        tagIds,
+      );
+
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: journalTags,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async deleteJournalTagById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+      const tagId = Number(req.params.tagId);
+
+      const deletedJournalTag = await JournalsService.deleteJournalTagById(
+        userId,
+        journalId,
+        tagId,
+      );
+
+      const response: DefaultResponse<Journal | any> = {
+        status: 'success',
+        data: deletedJournalTag,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
