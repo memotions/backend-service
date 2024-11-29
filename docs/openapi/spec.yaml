@@ -25,8 +25,6 @@ components:
           type: string
         email:
           type: string
-        username:
-          type: string
     Journal:
       type: object
       properties:
@@ -61,6 +59,8 @@ components:
           type: integer
         name:
           type: string
+        userId:
+          type: integer
     Emotion:
       type: object
       properties:
@@ -150,10 +150,14 @@ components:
       properties:
         code:
           type: string
-        field:
-          type: string
         message:
           type: string
+        path:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
 security:
   - bearerAuth: []
 paths:
@@ -250,13 +254,6 @@ paths:
         - bearerAuth: []
       parameters:
         - in: query
-          name: title
-          schema:
-            type: string
-          required: false
-          description: Title to filter journals by
-          example: 'Rabu yang cerah'
-        - in: query
           name: search
           schema:
             type: string
@@ -268,7 +265,7 @@ paths:
             type: string
           required: false
           description: Comma-separated list of tag IDs
-          example: 'sekolah,kerja'
+          example: '1,2'
         - in: query
           name: emotions
           schema:
@@ -276,6 +273,13 @@ paths:
           required: false
           description: Comma-separated list of emotion classes
           example: '1,2'
+        - in: query
+          name: date
+          schema:
+            type: string
+          required: false
+          description: Date for filtering journals
+          example: '2023-01-01'
         - in: query
           name: startDate
           schema:
@@ -297,21 +301,6 @@ paths:
           required: false
           description: Maximum number of journals to retrieve
           example: 10
-        - in: query
-          name: sortBy
-          schema:
-            type: string
-          required: false
-          description: Field to sort journals by
-          example: 'title'
-        - in: query
-          name: order
-          schema:
-            type: string
-            enum: ['asc', 'desc']
-          required: false
-          description: Order to sort journals by
-          example: 'asc'
       responses:
         '200':
           description: Journals retrieved successfully
@@ -381,6 +370,24 @@ paths:
           description: Unauthorized
         '404':
           description: Journal not found
+  /journals/{journalId}/star:
+    patch:
+      summary: Toggle star status for a journal
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Journal starred/unstarred successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal not found
   /journals/{journalId}/tags:
     get:
       summary: Get all tags for a journal
@@ -406,8 +413,8 @@ paths:
         '404':
           description: Journal not found
   /journals/{journalId}/tags/{tagId}:
-    delete:
-      summary: Delete a tag from a journal
+    patch:
+      summary: Add or remove a tag from a journal
       security:
         - bearerAuth: []
       parameters:
@@ -423,7 +430,7 @@ paths:
             type: integer
       responses:
         '204':
-          description: Journal's tag deleted successfully
+          description: Tag added/removed from journal successfully
         '401':
           description: Unauthorized
         '404':
@@ -444,7 +451,58 @@ paths:
                   $ref: '#/components/schemas/Tag'
         '401':
           description: Unauthorized
+    post:
+      summary: Create a new tag
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        '201':
+          description: Tag created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
   /tags/{tagId}:
+    get:
+      summary: Get a tag by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tag retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Tag not found
     delete:
       summary: Delete a tag
       security:
