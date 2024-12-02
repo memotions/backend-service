@@ -20,10 +20,20 @@ export default class PubSubService {
     this.topic = this.pubSubClient.topic(topicId);
   }
 
-  async publishEventToPubSub(RawJournal: unknown): Promise<string | null> {
+  async publishEventToPubSub(
+    userId: number,
+    journalId: number,
+    journalContent: string
+  ): Promise<string | null> {
     try {
+      // Construct the event object
+      const rawEvent = {
+        userId,
+        journalId,
+        journal: journalContent
+      };
       // Validate Data Entries
-      const event = PubSubService.validateEvent(RawJournal);
+      const event = PubSubService.validateEvent(rawEvent);
 
       // Convert to buffer
       const dataBuffer = Buffer.from(JSON.stringify(event));
