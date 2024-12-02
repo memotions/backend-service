@@ -514,6 +514,8 @@ components:
           type: integer
         name:
           type: string
+        type:
+          type: string
         description:
           type: string
         tier:
@@ -522,9 +524,6 @@ components:
           type: integer
         completed:
           type: boolean
-        completedAt:
-          type: string
-          format: date-time
     Streak:
       type: object
       properties:
@@ -536,27 +535,34 @@ components:
           format: date
         streakLength:
           type: integer
+    Level:
+      type: object
+      properties:
+        currentLevel:
+          type: integer
+        totalPoints:
+          type: integer
+        nextLevel:
+          type: integer
+        pointsRequired:
+          type: integer
     Stats:
       type: object
       properties:
-        totalJournals:
+        journalsCount:
           type: integer
         currentStreak:
           $ref: '#/components/schemas/Streak'
-        longestStreak:
-          $ref: '#/components/schemas/Streak'
-        totalPoints:
-          type: integer
         currentLevel:
-          type: integer
-        achievements:
+          $ref: '#/components/schemas/Level'
+        achievementsCount:
           type: object
           properties:
             completed:
               type: integer
             total:
               type: integer
-        emotions:
+        emotionsCount:
           type: object
           properties:
             happy:
