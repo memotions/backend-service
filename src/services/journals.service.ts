@@ -10,6 +10,7 @@ import {
   lte,
   not,
   or,
+  sql,
   SQL,
 } from 'drizzle-orm';
 import db from '../db';
@@ -284,5 +285,14 @@ export default class JournalsService {
     } else {
       await db.insert(journalTags).values({ journalId, tagId, userId });
     }
+  }
+
+  public static async getJournalsCount(userId: number): Promise<number> {
+    const [{ journalsCount }] = await db
+      .select({ journalsCount: sql<number>`count(*)` })
+      .from(journals)
+      .where(eq(journals.userId, userId));
+
+    return journalsCount;
   }
 }
