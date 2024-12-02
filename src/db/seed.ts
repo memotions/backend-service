@@ -3,10 +3,13 @@ import db from '.';
 import Logger from '../utils/logger';
 import { achievementTypes, achievements } from './schema/achievements.schema';
 import { levels } from './schema/levels.schema';
+import { emotions } from './schema/emotions.schema';
 
 type InsertAchievementType = typeof achievementTypes.$inferInsert;
 type InsertAchievement = typeof achievements.$inferInsert;
 type InsertLevel = typeof levels.$inferInsert;
+
+const defaultEmotions = ['HAPPY', 'ANGRY', 'SAD', 'NEUTRAL', 'SCARED'];
 
 const defaultAchievementTypes: InsertAchievementType['type'][] = [
   'REGISTER',
@@ -31,6 +34,10 @@ async function main(): Promise<void> {
   Logger.info('Seeding database...');
 
   try {
+    await db
+      .insert(emotions)
+      .values(defaultEmotions.map(emotion => ({ emotion })))
+      .onConflictDoNothing();
     await db
       .insert(achievementTypes)
       .values(defaultAchievementTypes.map(type => ({ type })))

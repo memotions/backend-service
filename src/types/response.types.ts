@@ -19,7 +19,8 @@ export const DefaultResponseSchema = ResponseSchema(z.unknown());
 
 export type ErrorDetails = z.infer<typeof ErrorDetailsSchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;
-// export type DefaultResponse = z.infer<typeof DefaultResponseSchema>;
-export type DefaultResponse<T extends z.ZodTypeAny> = z.infer<
-  ReturnType<typeof ResponseSchema<T>>
->;
+export type DefaultResponse<T> = {
+  status: 'success' | 'error';
+  data: T | null;
+  errors: ErrorDetails[] | null;
+};
