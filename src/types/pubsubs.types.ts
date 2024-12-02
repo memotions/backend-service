@@ -14,12 +14,17 @@ export const PubsubEventSchema = z.object({
     .optional()
     .nullable()
     .transform(val => (val === null ? [] : val ?? [])),
+  analyzedAt: z
+    .string()
+    .optional()
+    .nullable()
+    .transform(val => (val === null ? "" : val ?? "")),
   feedback: z
     .string()
     .optional()
     .nullable()
     .transform(val => (val === null ? "" : val ?? "")),
-  analyzedAt: z
+  createdAt: z
     .string()
     .optional()
     .nullable()

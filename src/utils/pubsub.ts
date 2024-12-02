@@ -20,7 +20,7 @@ export default class PubSubService {
     this.topic = this.pubSubClient.topic(topicId);
   }
 
-  async publishEventToPubSub(
+  public async publishEventToPubSub(
     userId: number,
     journalId: number,
     journalContent: string
