@@ -4,24 +4,23 @@ import {
   varchar,
   integer,
   timestamp,
-  pgEnum,
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 
-export const achievementTierEnums = pgEnum('achievement_tier', [
-  'BRONZE',
-  'SILVER',
-  'GOLD',
-  'SPECIAL',
-]);
+export const achievementTypes = pgTable('achievement_types', {
+  type: varchar('type').primaryKey(),
+});
 
 export const achivements = pgTable('achievements', {
   id: serial('id').primaryKey(),
   name: varchar('name').notNull(),
+  type: varchar('type')
+    .references(() => achievementTypes.type)
+    .notNull(),
   description: varchar('description').notNull(),
-  tier: achievementTierEnums('tier').notNull(),
+  tier: integer('tier').notNull(),
   pointsAwarded: integer('points_awarded').notNull(),
 });
 
@@ -36,12 +35,19 @@ export const userAchievements = pgTable(
       .references(() => achivements.id),
     completedAt: timestamp('completed_at'),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.achievementId] })],
+  table => [primaryKey({ columns: [table.userId, table.achievementId] })],
 );
 
-export const achievementsRelations = relations(achivements, ({ many }) => ({
-  userAchievements: many(userAchievements),
-}));
+export const achievementsRelations = relations(
+  achivements,
+  ({ many, one }) => ({
+    userAchievements: many(userAchievements),
+    type: one(achievementTypes, {
+      fields: [achivements.type],
+      references: [achievementTypes.type],
+    }),
+  }),
+);
 
 export const userAchievementsRelations = relations(
   userAchievements,

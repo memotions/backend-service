@@ -1,10 +1,9 @@
-import { pgTable, serial, integer, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, integer, primaryKey } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 
 export const levels = pgTable('levels', {
-  id: serial('id').primaryKey(),
-  levelNumber: integer('level_number').notNull(),
+  level: integer('level_number').notNull().primaryKey(),
   pointsRequired: integer('points_required').notNull(),
 });
 
@@ -17,7 +16,7 @@ export const userLevels = pgTable(
       .unique(),
     levelId: integer('level_id')
       .notNull()
-      .references(() => levels.id),
+      .references(() => levels.level),
   },
   table => [primaryKey({ columns: [table.userId, table.levelId] })],
 );
@@ -33,6 +32,6 @@ export const userLevelsRelations = relations(userLevels, ({ one }) => ({
   }),
   level: one(levels, {
     fields: [userLevels.levelId],
-    references: [levels.id],
+    references: [levels.level],
   }),
 }));

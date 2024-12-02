@@ -1,0 +1,154 @@
+[
+  {
+    "id": 1,
+    "name": "Prolog",
+    "description": "Mulai perjalanan pertama Anda di Memotions",
+    "tier": 3,
+    "pointsAwarded": 5,
+    "type": "REGISTER"
+  },
+  {
+    "id": 2,
+    "name": "Pejuang Konsistensi",
+    "description": "Selesaikan streak jurnal selama 7 hari berturut-turut",
+    "tier": 1,
+    "pointsAwarded": 10,
+    "type": "JOURNAL_STREAK"
+  },
+  {
+    "id": 3,
+    "name": "Pejuang Konsistensi",
+    "description": "Selesaikan streak jurnal selama 14 hari berturut-turut",
+    "tier": 2,
+    "pointsAwarded": 20,
+    "type": "JOURNAL_STREAK"
+  },
+  {
+    "id": 4,
+    "name": "Pejuang Konsistensi",
+    "description": "Selesaikan streak jurnal selama 30 hari berturut-turut",
+    "tier": 3,
+    "pointsAwarded": 50,
+    "type": "JOURNAL_STREAK"
+  },
+  {
+    "id": 5,
+    "name": "Penulis Berdedikasi",
+    "description": "Tulis 1 entri jurnal",
+    "tier": 1,
+    "pointsAwarded": 5,
+    "type": "JOURNAL_COUNT"
+  },
+  {
+    "id": 6,
+    "name": "Penulis Berdedikasi",
+    "description": "Tulis 15 entri jurnal",
+    "tier": 2,
+    "pointsAwarded": 15,
+    "type": "JOURNAL_COUNT"
+  },
+  {
+    "id": 7,
+    "name": "Penulis Berdedikasi",
+    "description": "Tulis 50 entri jurnal",
+    "tier": 3,
+    "pointsAwarded": 30,
+    "type": "JOURNAL_COUNT"
+  },
+  {
+    "id": 8,
+    "name": "Penyebar Kebahagiaan",
+    "description": "Catat 5 emosi bahagia",
+    "tier": 1,
+    "pointsAwarded": 10,
+    "type": "POSITIVE_COUNT"
+  },
+  {
+    "id": 9,
+    "name": "Penyebar Kebahagiaan",
+    "description": "Catat 10 emosi bahagia",
+    "tier": 2,
+    "pointsAwarded": 20,
+    "type": "POSITIVE_COUNT"
+  },
+  {
+    "id": 10,
+    "name": "Penyebar Kebahagiaan",
+    "description": "Catat 20 emosi bahagia",
+    "tier": 3,
+    "pointsAwarded": 40,
+    "type": "POSITIVE_COUNT"
+  },
+  {
+    "id": 11,
+    "name": "Sang Bangkit",
+    "description": "Bangkit dari kesulitan sebanyak 3 kali",
+    "tier": 1,
+    "pointsAwarded": 10,
+    "type": "RISE_COUNT"
+  },
+  {
+    "id": 12,
+    "name": "Sang Bangkit",
+    "description": "Bangkit dari kesulitan sebanyak 7 kali",
+    "tier": 2,
+    "pointsAwarded": 20,
+    "type": "RISE_COUNT"
+  },
+  {
+    "id": 13,
+    "name": "Sang Bangkit",
+    "description": "Bangkit dari kesulitan sebanyak 15 kali",
+    "tier": 3,
+    "pointsAwarded": 50,
+    "type": "RISE_COUNT"
+  },
+  {
+    "id": 14,
+    "name": "Penulis Veteran",
+    "description": "Capai level 5 dalam perjalanan jurnal Anda",
+    "tier": 1,
+    "pointsAwarded": 5,
+    "type": "LEVEL"
+  },
+  {
+    "id": 15,
+    "name": "Penulis Veteran",
+    "description": "Capai level 10 dalam perjalanan jurnal Anda",
+    "tier": 2,
+    "pointsAwarded": 15,
+    "type": "LEVEL"
+  },
+  {
+    "id": 16,
+    "name": "Penulis Veteran",
+    "description": "Capai level 25 dalam perjalanan jurnal Anda",
+    "tier": 3,
+    "pointsAwarded": 40,
+    "type": "LEVEL"
+  },
+  {
+    "id": 17,
+    "name": "Rantai Senyuman",
+    "description": "Dapatkan 5 emosi positif berturut-turut",
+    "tier": 1,
+    "pointsAwarded": 10,
+    "type": "POSITIVE_STREAK"
+  },
+  {
+    "id": 18,
+    "name": "Rantai Senyuman",
+    "description": "Dapatkan 10 emosi positif berturut-turut",
+    "tier": 2,
+    "pointsAwarded": 20,
+    "type": "POSITIVE_STREAK"
+  },
+  {
+    "id": 19,
+    "name": "Rantai Senyuman",
+    "description": "Dapatkan 20 emosi positif berturut-turut",
+    "tier": 3,
+    "pointsAwarded": 40,
+    "type": "POSITIVE_STREAK"
+  }
+]

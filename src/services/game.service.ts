@@ -97,13 +97,13 @@ export default class GameService {
       .select()
       .from(levels)
       .where(lte(levels.pointsRequired, currentPoints.points))
-      .orderBy(desc(levels.id))
+      .orderBy(desc(levels.level))
       .limit(1);
 
-    if (nextLevel && nextLevel.levelNumber > currentLevel.currentLevel) {
+    if (nextLevel && nextLevel.level > currentLevel.currentLevel) {
       await db
         .update(userLevels)
-        .set({ levelId: nextLevel.id })
+        .set({ levelId: nextLevel.level })
         .where(eq(userLevels.userId, userId));
     }
   }
@@ -122,20 +122,20 @@ export default class GameService {
       const [levelDetails] = await db
         .select()
         .from(levels)
-        .where(eq(levels.id, 1));
+        .where(eq(levels.level, 1));
 
       return {
-        currentLevel: levelDetails.levelNumber,
+        currentLevel: levelDetails.level,
         currentPoints: 0,
-        nextLevel: levelDetails.levelNumber + 1,
+        nextLevel: levelDetails.level + 1,
         pointsRequired: levelDetails.pointsRequired,
       };
     }
 
     return {
-      currentLevel: currentLevel.level.levelNumber,
+      currentLevel: currentLevel.level.level,
       currentPoints: currentLevel.level.pointsRequired,
-      nextLevel: currentLevel.level.levelNumber + 1,
+      nextLevel: currentLevel.level.level + 1,
       pointsRequired: currentLevel.level.pointsRequired,
     };
   }
