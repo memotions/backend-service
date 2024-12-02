@@ -13,12 +13,13 @@ export const userLevels = pgTable(
   {
     userId: integer('user_id')
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id)
+      .unique(),
     levelId: integer('level_id')
       .notNull()
       .references(() => levels.id),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.levelId] })],
+  table => [primaryKey({ columns: [table.userId, table.levelId] })],
 );
 
 export const levelsRelations = relations(levels, ({ many }) => ({
