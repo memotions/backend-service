@@ -5,7 +5,8 @@
     "description": "Mulai perjalanan pertama Anda di Memotions",
     "tier": 3,
     "pointsAwarded": 5,
-    "type": "REGISTER"
+    "type": "REGISTER",
+    "criteria": 1
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "description": "Selesaikan streak jurnal selama 7 hari berturut-turut",
     "tier": 1,
     "pointsAwarded": 10,
-    "type": "JOURNAL_STREAK"
+    "type": "JOURNAL_STREAK",
+    "criteria": 7
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "description": "Selesaikan streak jurnal selama 14 hari berturut-turut",
     "tier": 2,
     "pointsAwarded": 20,
-    "type": "JOURNAL_STREAK"
+    "type": "JOURNAL_STREAK",
+    "criteria": 14
   },
   {
     "id": 4,
@@ -29,7 +32,8 @@
     "description": "Selesaikan streak jurnal selama 30 hari berturut-turut",
     "tier": 3,
     "pointsAwarded": 50,
-    "type": "JOURNAL_STREAK"
+    "type": "JOURNAL_STREAK",
+    "criteria": 30
   },
   {
     "id": 5,
@@ -37,7 +41,8 @@
     "description": "Tulis 1 entri jurnal",
     "tier": 1,
     "pointsAwarded": 5,
-    "type": "JOURNAL_COUNT"
+    "type": "JOURNAL_COUNT",
+    "criteria": 1
   },
   {
     "id": 6,
@@ -45,7 +50,8 @@
     "description": "Tulis 15 entri jurnal",
     "tier": 2,
     "pointsAwarded": 15,
-    "type": "JOURNAL_COUNT"
+    "type": "JOURNAL_COUNT",
+    "criteria": 15
   },
   {
     "id": 7,
@@ -53,7 +59,8 @@
     "description": "Tulis 50 entri jurnal",
     "tier": 3,
     "pointsAwarded": 30,
-    "type": "JOURNAL_COUNT"
+    "type": "JOURNAL_COUNT",
+    "criteria": 50
   },
   {
     "id": 8,
@@ -61,7 +68,8 @@
     "description": "Catat 5 emosi bahagia",
     "tier": 1,
     "pointsAwarded": 10,
-    "type": "POSITIVE_COUNT"
+    "type": "POSITIVE_COUNT",
+    "criteria": 5
   },
   {
     "id": 9,
@@ -69,7 +77,8 @@
     "description": "Catat 10 emosi bahagia",
     "tier": 2,
     "pointsAwarded": 20,
-    "type": "POSITIVE_COUNT"
+    "type": "POSITIVE_COUNT",
+    "criteria": 10
   },
   {
     "id": 10,
@@ -77,7 +86,8 @@
     "description": "Catat 20 emosi bahagia",
     "tier": 3,
     "pointsAwarded": 40,
-    "type": "POSITIVE_COUNT"
+    "type": "POSITIVE_COUNT",
+    "criteria": 20
   },
   {
     "id": 11,
@@ -85,7 +95,8 @@
     "description": "Bangkit dari kesulitan sebanyak 3 kali",
     "tier": 1,
     "pointsAwarded": 10,
-    "type": "RISE_COUNT"
+    "type": "RISE_COUNT",
+    "criteria": 3
   },
   {
     "id": 12,
@@ -93,7 +104,8 @@
     "description": "Bangkit dari kesulitan sebanyak 7 kali",
     "tier": 2,
     "pointsAwarded": 20,
-    "type": "RISE_COUNT"
+    "type": "RISE_COUNT",
+    "criteria": 7
   },
   {
     "id": 13,
@@ -101,7 +113,8 @@
     "description": "Bangkit dari kesulitan sebanyak 15 kali",
     "tier": 3,
     "pointsAwarded": 50,
-    "type": "RISE_COUNT"
+    "type": "RISE_COUNT",
+    "criteria": 15
   },
   {
     "id": 14,
@@ -109,7 +122,8 @@
     "description": "Capai level 5 dalam perjalanan jurnal Anda",
     "tier": 1,
     "pointsAwarded": 5,
-    "type": "LEVEL"
+    "type": "LEVEL",
+    "criteria": 5
   },
   {
     "id": 15,
@@ -117,7 +131,8 @@
     "description": "Capai level 10 dalam perjalanan jurnal Anda",
     "tier": 2,
     "pointsAwarded": 15,
-    "type": "LEVEL"
+    "type": "LEVEL",
+    "criteria": 10
   },
   {
     "id": 16,
@@ -125,7 +140,8 @@
     "description": "Capai level 25 dalam perjalanan jurnal Anda",
     "tier": 3,
     "pointsAwarded": 40,
-    "type": "LEVEL"
+    "type": "LEVEL",
+    "criteria": 25
   },
   {
     "id": 17,
@@ -133,7 +149,8 @@
     "description": "Dapatkan 5 emosi positif berturut-turut",
     "tier": 1,
     "pointsAwarded": 10,
-    "type": "POSITIVE_STREAK"
+    "type": "POSITIVE_STREAK",
+    "criteria": 5
   },
   {
     "id": 18,
@@ -141,7 +158,8 @@
     "description": "Dapatkan 10 emosi positif berturut-turut",
     "tier": 2,
     "pointsAwarded": 20,
-    "type": "POSITIVE_STREAK"
+    "type": "POSITIVE_STREAK",
+    "criteria": 10
   },
   {
     "id": 19,
@@ -149,6 +167,7 @@
     "description": "Dapatkan 20 emosi positif berturut-turut",
     "tier": 3,
     "pointsAwarded": 40,
-    "type": "POSITIVE_STREAK"
+    "type": "POSITIVE_STREAK",
+    "criteria": 20
   }
 ]

@@ -13,12 +13,13 @@ export const achievementTypes = pgTable('achievement_types', {
   type: varchar('type').primaryKey(),
 });
 
-export const achivements = pgTable('achievements', {
+export const achievements = pgTable('achievements', {
   id: serial('id').primaryKey(),
   name: varchar('name').notNull(),
   type: varchar('type')
     .references(() => achievementTypes.type)
     .notNull(),
+  criteria: integer('criteria').notNull(),
   description: varchar('description').notNull(),
   tier: integer('tier').notNull(),
   pointsAwarded: integer('points_awarded').notNull(),
@@ -32,18 +33,18 @@ export const userAchievements = pgTable(
       .references(() => users.id),
     achievementId: integer('achievement_id')
       .notNull()
-      .references(() => achivements.id),
+      .references(() => achievements.id),
     completedAt: timestamp('completed_at'),
   },
   table => [primaryKey({ columns: [table.userId, table.achievementId] })],
 );
 
 export const achievementsRelations = relations(
-  achivements,
+  achievements,
   ({ many, one }) => ({
     userAchievements: many(userAchievements),
     type: one(achievementTypes, {
-      fields: [achivements.type],
+      fields: [achievements.type],
       references: [achievementTypes.type],
     }),
   }),
@@ -56,9 +57,9 @@ export const userAchievementsRelations = relations(
       fields: [userAchievements.userId],
       references: [users.id],
     }),
-    achievement: one(achivements, {
+    achievement: one(achievements, {
       fields: [userAchievements.achievementId],
-      references: [achivements.id],
+      references: [achievements.id],
     }),
   }),
 );

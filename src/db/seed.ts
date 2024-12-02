@@ -1,11 +1,11 @@
 import fs from 'fs';
 import db from '.';
 import Logger from '../utils/logger';
-import { achievementTypes, achivements } from './schema/achievements.schema';
+import { achievementTypes, achievements } from './schema/achievements.schema';
 import { levels } from './schema/levels.schema';
 
 type InsertAchievementType = typeof achievementTypes.$inferInsert;
-type InsertAchievement = typeof achivements.$inferInsert;
+type InsertAchievement = typeof achievements.$inferInsert;
 type InsertLevel = typeof levels.$inferInsert;
 
 const defaultAchievementTypes: InsertAchievementType['type'][] = [
@@ -36,7 +36,7 @@ async function main(): Promise<void> {
       .values(defaultAchievementTypes.map(type => ({ type })))
       .onConflictDoNothing();
     await db
-      .insert(achivements)
+      .insert(achievements)
       .values(defaultAchievements)
       .onConflictDoNothing();
     await db.insert(levels).values(defaultLevels).onConflictDoNothing();

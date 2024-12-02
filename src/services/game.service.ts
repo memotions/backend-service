@@ -2,14 +2,17 @@ import { desc, eq, lte, sql } from 'drizzle-orm';
 import db from '../db';
 import { pointTransactions } from '../db/schema/points.schema';
 import {
+  Achievements,
   AddPoints,
   CurrentLevel,
   CurrentPoints,
   CurrentStreak,
   PointTransaction,
+  Stats,
 } from '../types/game.types';
 import { streaks } from '../db/schema/streaks.schema';
 import { levels, userLevels } from '../db/schema/levels.schema';
+import JournalsService from './journals.service';
 
 export default class GameService {
   public static async addPoints(
@@ -27,7 +30,7 @@ export default class GameService {
   public static async getCurrentPoints(userId: number): Promise<CurrentPoints> {
     const [currentPoints] = await db
       .select({
-        points: sql`sum(${pointTransactions.points})`.mapWith(Number),
+        totalPoints: sql`sum(${pointTransactions.points})`.mapWith(Number),
       })
       .from(pointTransactions)
       .where(eq(pointTransactions.userId, userId));
@@ -96,7 +99,7 @@ export default class GameService {
     const [nextLevel] = await db
       .select()
       .from(levels)
-      .where(lte(levels.pointsRequired, currentPoints.points))
+      .where(lte(levels.pointsRequired, currentPoints.totalPoints))
       .orderBy(desc(levels.level))
       .limit(1);
 
@@ -126,7 +129,7 @@ export default class GameService {
 
       return {
         currentLevel: levelDetails.level,
-        currentPoints: 0,
+        totalPoints: 0,
         nextLevel: levelDetails.level + 1,
         pointsRequired: levelDetails.pointsRequired,
       };
@@ -134,9 +137,34 @@ export default class GameService {
 
     return {
       currentLevel: currentLevel.level.level,
-      currentPoints: currentLevel.level.pointsRequired,
+      totalPoints: currentLevel.level.pointsRequired,
       nextLevel: currentLevel.level.level + 1,
       pointsRequired: currentLevel.level.pointsRequired,
+    };
+  }
+
+  public static async getAchievements(userId: number): Promise<Achievements> {}
+
+  public static async getStats(userId: number): Promise<Stats> {
+    const currentLevel = await this.getCurrentLevel(userId);
+    const currentStreak = await this.getCurrentStreak(userId);
+    const journalsCount = await JournalsService.getJournalsCount(userId);
+
+    return {
+      currentLevel,
+      currentStreak,
+      journalsCount,
+      achievementsCount: {
+        total: 0,
+        completed: 0,
+      },
+      emotions: {
+        happy: 0,
+        sad: 0,
+        neutral: 0,
+        angry: 0,
+        scared: 0,
+      },
     };
   }
 }

@@ -1,5 +1,5 @@
 import {
-  achivements,
+  achievements,
   userAchievements,
   userAchievementsRelations,
 } from './achievements.schema';
@@ -44,7 +44,7 @@ export const schemas = {
   pointTransactions,
   streaks,
   levels,
-  achivements,
+  achievements,
 };
 
 export const relations = {

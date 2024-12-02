@@ -2,6 +2,7 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 import { pointTransactions } from '../db/schema/points.schema';
 import { streaks } from '../db/schema/streaks.schema';
+import { achievements } from '../db/schema/achievements.schema';
 
 export const PointTransactionSchema = createSelectSchema(
   pointTransactions,
@@ -15,24 +16,44 @@ export const AddPointsSchema = createInsertSchema(pointTransactions).omit({
   createdAt: true,
 });
 
-export const CurrentPointsSchema = z.object({
-  points: z.number(),
-});
-
-export const CurrentLevelSchema = z.object({
-  currentLevel: z.number(),
-  currentPoints: z.number(),
-  nextLevel: z.number(),
-  pointsRequired: z.number(),
-});
-
 export const CurrentStreakSchema = createSelectSchema(streaks).omit({
   id: true,
   userId: true,
 });
 
+export const AchievementsSchema = createSelectSchema(achievements).extend({
+  completed: z.boolean(),
+});
+
 export type AddPoints = z.infer<typeof AddPointsSchema>;
 export type PointTransaction = z.infer<typeof PointTransactionSchema>;
-export type CurrentPoints = z.infer<typeof CurrentPointsSchema>;
-export type CurrentLevel = z.infer<typeof CurrentLevelSchema>;
 export type CurrentStreak = z.infer<typeof CurrentStreakSchema>;
+export type Achievements = z.infer<typeof AchievementsSchema>;
+
+export type CurrentPoints = {
+  totalPoints: number;
+};
+
+export type CurrentLevel = {
+  currentLevel: number;
+  totalPoints: number;
+  nextLevel: number;
+  pointsRequired: number;
+};
+
+export type Stats = {
+  journalsCount: number;
+  currentStreak: CurrentStreak;
+  currentLevel: CurrentLevel;
+  achievementsCount: {
+    completed: number;
+    total: number;
+  };
+  emotions: {
+    happy: number;
+    sad: number;
+    angry: number;
+    scared: number;
+    neutral: number;
+  };
+};
