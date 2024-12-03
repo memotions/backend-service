@@ -5,6 +5,7 @@ import passport from 'passport';
 import Logger from './utils/logger';
 import httpLogger from './middlewares/httpLogger';
 import authRouter from './routes/auth.routes';
+import pubsubRouter from './routes/pubsub.routes';
 import journalsRouter from './routes/journals.routes';
 import tagsRouter from './routes/tags.routes';
 import './config/passport.config';
@@ -21,9 +22,14 @@ app.use(passport.initialize());
 
 app.use('/auth', authRouter);
 app.use(authHandler);
+app.use('/pubsub', pubsubRouter);
 app.use('/journals', journalsRouter);
 app.use('/tags', tagsRouter);
-
+// app.get('/pubsub', (req, res) => {
+//   res.status(200).json({
+//     message: 'Halo from s!',
+//   });
+// })
 app.get('/', (req, res) => {
   res.status(200).json({
     message: 'Halo, Memothians!',
