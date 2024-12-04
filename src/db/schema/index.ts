@@ -1,13 +1,13 @@
 import {
-  achivements,
+  achievements,
   userAchievements,
   userAchievementsRelations,
 } from './achievements.schema';
 import {
   emotionAnalysis,
   emotionAnalysisRelations,
-  emotions,
-  emotionsRelations,
+  emotionClasses,
+  emotionClassesRelations,
 } from './emotions.schema';
 import {
   journals,
@@ -34,7 +34,7 @@ import { users, usersRelations } from './users.schema';
 export const schemas = {
   users,
   usersRelations,
-  emotions,
+  emotionClasses,
   emotionAnalysis,
   userLevels,
   journalTags,
@@ -44,14 +44,14 @@ export const schemas = {
   pointTransactions,
   streaks,
   levels,
-  achivements,
+  achievements,
 };
 
 export const relations = {
   userAchievementsRelations,
   userAchievements,
   emotionAnalysisRelations,
-  emotionsRelations,
+  emotionClassesRelations,
   journalsRelations,
   journalFeedbacksRelations,
   levelsRelations,

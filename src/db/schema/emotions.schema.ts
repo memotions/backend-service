@@ -9,9 +9,8 @@ import {
 import { relations } from 'drizzle-orm';
 import { journals } from './journals.schema';
 
-export const emotions = pgTable('emotions', {
-  id: serial('id').primaryKey(),
-  name: varchar('name').notNull(),
+export const emotionClasses = pgTable('emotionClasses', {
+  emotion: varchar('emotion').primaryKey(),
 });
 
 export const emotionAnalysis = pgTable('emotion_analysis', {
@@ -19,16 +18,19 @@ export const emotionAnalysis = pgTable('emotion_analysis', {
   journalId: integer('journal_id')
     .notNull()
     .references(() => journals.id),
-  emotionId: integer('emotion_id')
+  emotion: varchar('emotion')
     .notNull()
-    .references(() => emotions.id),
+    .references(() => emotionClasses.emotion),
   confidence: decimal('confidence').notNull(),
   analyzedAt: timestamp('analyzed_at').notNull().defaultNow(),
 });
 
-export const emotionsRelations = relations(emotions, ({ many }) => ({
-  emotionAnalysis: many(emotionAnalysis),
-}));
+export const emotionClassesRelations = relations(
+  emotionClasses,
+  ({ many }) => ({
+    emotionAnalysis: many(emotionAnalysis),
+  }),
+);
 
 export const emotionAnalysisRelations = relations(
   emotionAnalysis,
@@ -37,9 +39,9 @@ export const emotionAnalysisRelations = relations(
       fields: [emotionAnalysis.journalId],
       references: [journals.id],
     }),
-    emotion: one(emotions, {
-      fields: [emotionAnalysis.emotionId],
-      references: [emotions.id],
+    emotion: one(emotionClasses, {
+      fields: [emotionAnalysis.emotion],
+      references: [emotionClasses.emotion],
     }),
   }),
 );

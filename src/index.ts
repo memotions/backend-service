@@ -7,6 +7,7 @@ import httpLogger from './middlewares/httpLogger';
 import authRouter from './routes/auth.routes';
 import journalsRouter from './routes/journals.routes';
 import tagsRouter from './routes/tags.routes';
+import gameRouter from './routes/game.routes';
 import './config/passport.config';
 import authHandler from './middlewares/authHandler';
 import errorHandler from './middlewares/errorHandler';
@@ -23,6 +24,7 @@ app.use('/auth', authRouter);
 app.use(authHandler);
 app.use('/journals', journalsRouter);
 app.use('/tags', tagsRouter);
+app.use('/', gameRouter);
 
 app.get('/', (req, res) => {
   res.status(200).json({
