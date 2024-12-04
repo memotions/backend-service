@@ -4,14 +4,20 @@ import {
   integer,
   varchar,
   boolean,
-  date,
   timestamp,
   text,
+  pgEnum,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 import { journalTags } from './tags.schema';
 import { emotionAnalysis } from './emotions.schema';
+
+export const journalStatusEnums = pgEnum('journal_status', [
+  'DRAFT',
+  'PUBLISHED',
+  'ANALYZED',
+]);
 
 export const journals = pgTable('journals', {
   id: serial('id').primaryKey(),
@@ -20,10 +26,11 @@ export const journals = pgTable('journals', {
     .references(() => users.id),
   title: varchar('title').notNull(),
   content: varchar('content').notNull(),
-  date: date('date', { mode: 'date' }).notNull().defaultNow(),
+  datetime: timestamp('datetime', { mode: 'date' }).notNull().defaultNow(),
   starred: boolean('starred').notNull().default(false),
   deleted: boolean('deleted').notNull().default(false),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  status: journalStatusEnums('status').notNull().default('DRAFT'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });
 
 export const journalFeedbacks = pgTable('journal_feedbacks', {
@@ -33,7 +40,7 @@ export const journalFeedbacks = pgTable('journal_feedbacks', {
     .references(() => journals.id)
     .unique(),
   feedback: text('feedback').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });
 
 export const journalsRelations = relations(journals, ({ one, many }) => ({

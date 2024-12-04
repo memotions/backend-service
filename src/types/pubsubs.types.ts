@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
-export const EmotionSchema = z .object({
-  result: z.string(),
-  confidence: z.number()
+export const EmotionAnalysisSchema = z.object({
+  emotion: z.string(),
+  confidence: z.number(),
 });
 
-export const PubsubEventSchema = z.object({
+export const PubSubEventSchema = z.object({
   userId: z.number(),
   journalId: z.number(),
-  journal: z.string(),
-  emotion: z
-    .array(EmotionSchema)
+  journalContent: z.string(),
+  emotionAnalysis: z
+    .array(EmotionAnalysisSchema)
     .optional()
     .nullable()
     .transform(val => (val === null ? [] : val ?? [])),
@@ -18,18 +18,17 @@ export const PubsubEventSchema = z.object({
     .string()
     .optional()
     .nullable()
-    .transform(val => (val === null ? "" : val ?? "")),
+    .transform(val => (val === null ? '' : val ?? '')),
   feedback: z
     .string()
     .optional()
     .nullable()
-    .transform(val => (val === null ? "" : val ?? "")),
+    .transform(val => (val === null ? '' : val ?? '')),
   createdAt: z
     .string()
     .optional()
     .nullable()
-    .transform(val => (val === null ? "" : val ?? "")),
+    .transform(val => (val === null ? '' : val ?? '')),
 });
 
-
-export type PubsubEvent = z.infer<typeof PubsubEventSchema>;
+export type PubSubEvent = z.infer<typeof PubSubEventSchema>;

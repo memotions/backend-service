@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { VerifiedCallback } from 'passport-jwt';
-import { VerifyCallback } from 'passport-google-oauth20';
 import db from '../db';
 import { users } from '../db/schema/users.schema';
 import AppError from '../utils/appError';
@@ -84,23 +83,6 @@ export default class AuthService {
     };
   };
 
-  public static loginWithGoogle = async (userId: number) => {
-    const token = this.generateToken(userId);
-
-    const [{ id, name, email }] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId));
-    return {
-      user: {
-        id,
-        name,
-        email,
-      },
-      token,
-    };
-  };
-
   public static jwtVerifyCallback = async (
     payload: any,
     done: VerifiedCallback,
@@ -115,37 +97,6 @@ export default class AuthService {
         return done(null, user);
       }
       return done(null, false);
-    } catch (error) {
-      return done(error, false);
-    }
-  };
-
-  public static googleVerifyCallback = async (
-    accessToken: string,
-    refreshToken: string,
-    profile: any,
-    done: VerifyCallback,
-  ) => {
-    try {
-      const [existingUser] = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, profile.emails[0].value));
-
-      if (existingUser) {
-        return done(null, existingUser);
-      }
-
-      const [newUser] = await db
-        .insert(users)
-        .values({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          googleId: profile.id,
-        })
-        .returning();
-
-      return done(null, newUser);
     } catch (error) {
       return done(error, false);
     }

@@ -14,9 +14,16 @@ import {
   SQL,
 } from 'drizzle-orm';
 import db from '../db';
-import { journals } from '../db/schema/journals.schema';
+import { journalFeedbacks, journals } from '../db/schema/journals.schema';
 import { journalTags, tags } from '../db/schema/tags.schema';
-import { AddJournal, Journal, QueryJournal } from '../types/journals.types';
+import {
+  AddJournal,
+  AddJournalFeedback,
+  Journal,
+  JournalFeedback,
+  QueryJournal,
+  UpdateJournal,
+} from '../types/journals.types';
 import AppError from '../utils/appError';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
 import { Tag } from '../types/tags.types';
@@ -26,13 +33,13 @@ export default class JournalsService {
     userId: number,
     journal: AddJournal,
   ): Promise<Journal | any> {
-    const { tagIds, date, ...journalData } = journal;
+    const { tagIds, datetime, ...journalData } = journal;
 
     const [newJournal] = await db
       .insert(journals)
       .values({
         userId,
-        date: date ? new Date(date) : new Date(),
+        datetime: datetime ? new Date(datetime) : new Date(),
         ...journalData,
       })
       .returning();
@@ -83,18 +90,18 @@ export default class JournalsService {
     }
 
     let dateCondition: SQL | undefined;
-    if (query?.date) {
-      dateCondition = eq(journals.date, query?.date as Date);
+    if (query?.datetime) {
+      dateCondition = eq(journals.datetime, query?.datetime as Date);
     } else if (query?.startDate && query?.endDate) {
       dateCondition = between(
-        journals.date,
+        journals.datetime,
         query?.startDate as Date,
         query?.endDate as Date,
       );
     } else if (query?.startDate) {
-      dateCondition = gte(journals.date, query?.startDate as Date);
+      dateCondition = gte(journals.datetime, query?.startDate as Date);
     } else if (query?.endDate) {
-      dateCondition = lte(journals.date, query?.endDate as Date);
+      dateCondition = lte(journals.datetime, query?.endDate as Date);
     }
     addCondition(dateCondition);
 
@@ -128,7 +135,7 @@ export default class JournalsService {
 
     const raw = await db.query?.journals.findMany({
       where: conditions.length > 1 ? and(...conditions) : undefined,
-      orderBy: [desc(journals.date)],
+      orderBy: [desc(journals.datetime)],
       limit: query?.limit as number,
       columns: {
         userId: false,
@@ -185,6 +192,26 @@ export default class JournalsService {
     }
 
     return journal;
+  }
+
+  public static async updateJournalById(
+    userId: number,
+    journalId: number,
+    journalData: UpdateJournal,
+  ): Promise<Journal> {
+    const [updatedJournal] = await db
+      .update(journals)
+      .set({
+        ...journalData,
+      })
+      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)))
+      .returning();
+
+    if (!updatedJournal) {
+      throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
+    }
+
+    return this.findJournalById(userId, journalId);
   }
 
   public static async deleteJournalById(
@@ -248,7 +275,7 @@ export default class JournalsService {
     userId: number,
     journalId: number,
     tagId: number,
-  ): Promise<void> {
+  ): Promise<Tag> {
     const journal = await db.query?.journals.findFirst({
       where: and(eq(journals.id, journalId), eq(journals.userId, userId)),
     });
@@ -272,18 +299,38 @@ export default class JournalsService {
       ),
     });
 
+    let newJournalTag: Tag;
+
     if (existingJournalTag) {
-      await db
+      newJournalTag = await db
         .delete(journalTags)
         .where(
           and(
             eq(journalTags.journalId, journalId),
             eq(journalTags.tagId, tagId),
           ),
-        );
+        )
+        .returning()[0];
     } else {
-      await db.insert(journalTags).values({ journalId, tagId, userId });
+      newJournalTag = await db
+        .insert(journalTags)
+        .values({ journalId, tagId, userId })
+        .returning()[0];
     }
+
+    return newJournalTag;
+  }
+
+  public static async addJournalFeedback(
+    journalId: number,
+    journalFeedback: AddJournalFeedback,
+  ): Promise<JournalFeedback> {
+    const [newJournalFeedback] = await db
+      .insert(journalFeedbacks)
+      .values({ journalId, ...journalFeedback })
+      .returning();
+
+    return newJournalFeedback;
   }
 
   public static async getJournalsCount(userId: number): Promise<number> {

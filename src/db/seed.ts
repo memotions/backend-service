@@ -10,7 +10,7 @@ type InsertAchievementType = typeof achievementTypes.$inferInsert;
 type InsertAchievement = typeof achievements.$inferInsert;
 type InsertLevel = typeof levels.$inferInsert;
 
-const defaultEmotions = ['HAPPY', 'ANGRY', 'SAD', 'NEUTRAL', 'SCARED'];
+const defaultEmotions = ['HAPPY', 'ANGER', 'SAD', 'NEUTRAL', 'SCARED'];
 
 const defaultAchievementTypes: InsertAchievementType['type'][] = [
   'REGISTER',

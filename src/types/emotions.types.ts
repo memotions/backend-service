@@ -9,16 +9,20 @@ export const EmotionAnalysisSchema = createSelectSchema(emotionAnalysis).omit({
   journalId: true,
 });
 
-export const AddEmotionAnalysisSchema = createInsertSchema(emotionAnalysis);
+export const AddEmotionAnalysisSchema = createInsertSchema(
+  emotionAnalysis,
+).omit({
+  journalId: true,
+});
 
 export type EmotionsCount = {
   happy: number;
   sad: number;
   neutral: number;
-  angry: number;
+  anger: number;
   scared: number;
 };
 
 export type Emotion = z.infer<typeof EmotionSchema>;
 export type EmotionAnalysis = z.infer<typeof EmotionAnalysisSchema>;
-export type AddEmotion = z.infer<typeof AddEmotionSchema>;
+export type AddEmotionAnalysis = z.infer<typeof AddEmotionAnalysisSchema>;

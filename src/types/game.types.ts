@@ -52,7 +52,7 @@ export type Stats = {
   emotions: {
     happy: number;
     sad: number;
-    angry: number;
+    anger: number;
     scared: number;
     neutral: number;
   };

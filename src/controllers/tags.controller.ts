@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { AddTagSchema, TagResponse, TagsResponse } from '../types/tags.types';
+import { AddTagSchema, Tag } from '../types/tags.types';
 import { User } from '../types/users.types';
 import TagsService from '../services/tags.service';
+import { DefaultSuccessResponse } from '../types/response.types';
 
 export default class TagsController {
   public static async addTag(req: Request, res: Response, next: NextFunction) {
@@ -16,7 +17,7 @@ export default class TagsController {
 
       const newTag = await TagsService.addTag(userId, tag);
 
-      const response: TagResponse = {
+      const response: DefaultSuccessResponse<Tag> = {
         status: 'success',
         data: newTag,
         errors: null,
@@ -37,7 +38,7 @@ export default class TagsController {
 
       const allTags = await TagsService.findAllTags(userId);
 
-      const response: TagsResponse = {
+      const response: DefaultSuccessResponse<Tag[]> = {
         status: 'success',
         data: allTags,
         errors: null,
@@ -59,7 +60,7 @@ export default class TagsController {
 
       const tag = await TagsService.findTagById(userId, tagId);
 
-      const response: TagResponse = {
+      const response: DefaultSuccessResponse<Tag> = {
         status: 'success',
         data: tag,
         errors: null,
@@ -80,7 +81,7 @@ export default class TagsController {
       const tagId = Number(req.params.tagId);
 
       const deletedTag = await TagsService.deleteTagById(userId, Number(tagId));
-      const response: TagResponse = {
+      const response: DefaultSuccessResponse<Tag> = {
         status: 'success',
         data: deletedTag,
         errors: null,

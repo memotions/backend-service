@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import AuthService from '../services/auth.service';
 import {
-  AuthResponse,
   User,
   LoginUserSchema,
   RegisterUserSchema,
+  Auth,
 } from '../types/users.types';
 import AchievementsService from '../services/achievements.service';
 import Logger from '../utils/logger';
+import { DefaultSuccessResponse } from '../types/response.types';
 
 export default class AuthController {
   public static register = async (
@@ -23,7 +24,7 @@ export default class AuthController {
         .then(() => Logger.info('Registered user achievements processed'))
         .catch(error => Logger.error(error));
 
-      const response: AuthResponse = {
+      const response: DefaultSuccessResponse<Auth> = {
         status: 'success',
         data: newUser,
         errors: null,
@@ -44,7 +45,7 @@ export default class AuthController {
 
       const user = await AuthService.login(email, password);
 
-      const response: AuthResponse = {
+      const response: DefaultSuccessResponse<Auth> = {
         status: 'success',
         data: user,
         errors: null,
@@ -64,7 +65,7 @@ export default class AuthController {
       const { id } = req.user as User;
       const user = await AuthService.getProfile(id);
 
-      const response: AuthResponse = {
+      const response: DefaultSuccessResponse<Auth> = {
         status: 'success',
         data: user,
         errors: null,
@@ -73,17 +74,5 @@ export default class AuthController {
     } catch (error) {
       next(error);
     }
-  };
-
-  public static loginWithGoogle = async (req: Request, res: Response) => {
-    const { id } = req.user as User;
-    const user = await AuthService.loginWithGoogle(id);
-
-    const response: AuthResponse = {
-      status: 'success',
-      data: user,
-      errors: null,
-    };
-    res.status(200).json(response);
   };
 }

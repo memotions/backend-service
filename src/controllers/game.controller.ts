@@ -8,7 +8,7 @@ import {
   CurrentStreak,
   Stats,
 } from '../types/game.types';
-import { DefaultResponse } from '../types/response.types';
+import { DefaultSuccessResponse } from '../types/response.types';
 
 export default class GameController {
   public static async getCurrentStreak(
@@ -21,7 +21,7 @@ export default class GameController {
 
       const currentStreak = await GameService.getCurrentStreak(userId);
 
-      const response: DefaultResponse<CurrentStreak> = {
+      const response: DefaultSuccessResponse<CurrentStreak> = {
         status: 'success',
         data: currentStreak,
         errors: null,
@@ -42,7 +42,7 @@ export default class GameController {
 
       const currentPoints = await GameService.getCurrentPoints(userId);
 
-      const response: DefaultResponse<CurrentPoints> = {
+      const response: DefaultSuccessResponse<CurrentPoints> = {
         status: 'success',
         data: currentPoints,
         errors: null,
@@ -63,7 +63,7 @@ export default class GameController {
 
       const currentLevel = await GameService.getCurrentLevel(userId);
 
-      const response: DefaultResponse<CurrentLevel> = {
+      const response: DefaultSuccessResponse<CurrentLevel> = {
         status: 'success',
         data: currentLevel,
         errors: null,
@@ -84,7 +84,7 @@ export default class GameController {
 
       const stats = await GameService.getStats(userId);
 
-      const response: DefaultResponse<Stats> = {
+      const response: DefaultSuccessResponse<Stats> = {
         status: 'success',
         data: stats,
         errors: null,
@@ -105,7 +105,7 @@ export default class GameController {
 
       const achievements = await GameService.getAchievements(userId);
 
-      const response: DefaultResponse<Achievement[]> = {
+      const response: DefaultSuccessResponse<Achievement[]> = {
         status: 'success',
         data: achievements,
         errors: null,

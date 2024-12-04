@@ -1,10 +1,26 @@
 import { desc, eq } from 'drizzle-orm';
-import { EmotionsCount } from '../types/emotions.types';
+import {
+  AddEmotionAnalysis,
+  EmotionAnalysis,
+  EmotionsCount,
+} from '../types/emotions.types';
 import db from '../db';
 import { journals } from '../db/schema/journals.schema';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
 
 export default class EmotionsService {
+  public static async addEmotionAnalysis(
+    journalId: number,
+    emotionAnalysisEntries: AddEmotionAnalysis[],
+  ): Promise<EmotionAnalysis[]> {
+    const newEmotionAnalysis = await db
+      .insert(emotionAnalysis)
+      .values(emotionAnalysisEntries.map(entry => ({ ...entry, journalId })))
+      .returning();
+
+    return newEmotionAnalysis;
+  }
+
   public static async getEmotionsCount(userId: number): Promise<EmotionsCount> {
     const emotionAnalyzed = await db
       .select()
@@ -15,7 +31,7 @@ export default class EmotionsService {
       happy: 0,
       sad: 0,
       neutral: 0,
-      angry: 0,
+      anger: 0,
       scared: 0,
     };
 
@@ -26,8 +42,8 @@ export default class EmotionsService {
         emotionsCount.sad += 1;
       } else if (emotion.emotion === 'NEUTRAL') {
         emotionsCount.neutral += 1;
-      } else if (emotion.emotion === 'ANGRY') {
-        emotionsCount.angry += 1;
+      } else if (emotion.emotion === 'ANGER') {
+        emotionsCount.anger += 1;
       } else if (emotion.emotion === 'SCARED') {
         emotionsCount.scared += 1;
       }
@@ -57,7 +73,7 @@ export default class EmotionsService {
   public static async getRiseCount(userId: number): Promise<number> {
     const emotionAnalyzed = await this.getEmotionAnalysis(userId);
 
-    const negativeEmotions = new Set(['SCARED', 'ANGRY', 'SAD']);
+    const negativeEmotions = new Set(['SCARED', 'ANGER', 'SAD']);
     const positiveEmotions = new Set(['HAPPY']);
 
     return emotionAnalyzed

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
-import { AuthResponse } from '../types/users.types';
+import { DefaultErrorResponse } from '../types/response.types';
 
 const authHandler = (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate('jwt', (err: any, user: any) => {
@@ -9,7 +9,7 @@ const authHandler = (req: Request, res: Response, next: NextFunction) => {
     }
 
     if (!user) {
-      const response: AuthResponse = {
+      const response: DefaultErrorResponse = {
         status: 'error',
         data: null,
         errors: [{ code: 'UNAUTHORIZED', message: 'Unauthorized' }],

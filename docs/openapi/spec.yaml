@@ -569,7 +569,7 @@ components:
               type: integer
             sad:
               type: integer
-            angry:
+            anger:
               type: integer
             scared:
               type: integer

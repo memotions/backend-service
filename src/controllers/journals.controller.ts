@@ -5,8 +5,9 @@ import {
   QueryJournalSchema,
 } from '../types/journals.types';
 import JournalsService from '../services/journals.service';
-import { DefaultResponse } from '../types/response.types';
+import { DefaultSuccessResponse } from '../types/response.types';
 import { User } from '../types/users.types';
+import { Tag } from '../types/tags.types';
 
 export default class JournalsController {
   public static async addJournal(
@@ -20,7 +21,7 @@ export default class JournalsController {
 
       const newJournal = await JournalsService.addJournal(userId, journal);
 
-      const response: DefaultResponse<Journal | any> = {
+      const response: DefaultSuccessResponse<Journal> = {
         status: 'success',
         data: newJournal,
         errors: null,
@@ -42,7 +43,7 @@ export default class JournalsController {
 
       const journals = await JournalsService.findJournals(userId, query);
 
-      const response: DefaultResponse<Journal[] | any> = {
+      const response: DefaultSuccessResponse<Journal[]> = {
         status: 'success',
         data: journals,
         errors: null,
@@ -64,9 +65,36 @@ export default class JournalsController {
 
       const journal = await JournalsService.findJournalById(userId, journalId);
 
-      const response: DefaultResponse<Journal | any> = {
+      const response: DefaultSuccessResponse<Journal> = {
         status: 'success',
         data: journal,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async updateJournalById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const journalId = Number(req.params.journalId);
+      const journal = AddJournalSchema.parse(req.body);
+
+      const updatedJournal = await JournalsService.updateJournalById(
+        userId,
+        journalId,
+        journal,
+      );
+
+      const response: DefaultSuccessResponse<Journal> = {
+        status: 'success',
+        data: updatedJournal,
         errors: null,
       };
       res.status(200).json(response);
@@ -123,7 +151,7 @@ export default class JournalsController {
         journalId,
       );
 
-      const response: DefaultResponse<Journal | any> = {
+      const response: DefaultSuccessResponse<Tag[]> = {
         status: 'success',
         data: journalTags,
         errors: null,
@@ -144,15 +172,15 @@ export default class JournalsController {
       const journalId = Number(req.params.journalId);
       const tagId = Number(req.params.tagId);
 
-      const journalTags = await JournalsService.toggleJournalTag(
+      const journalTag = await JournalsService.toggleJournalTag(
         userId,
         journalId,
         tagId,
       );
 
-      const response: DefaultResponse<Journal | any> = {
+      const response: DefaultSuccessResponse<Tag> = {
         status: 'success',
-        data: journalTags,
+        data: journalTag,
         errors: null,
       };
       res.status(200).json(response);

@@ -4,12 +4,12 @@ import {
   integer,
   timestamp,
   varchar,
-  decimal,
+  real,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { journals } from './journals.schema';
 
-export const emotionClasses = pgTable('emotionClasses', {
+export const emotionClasses = pgTable('emotion_classes', {
   emotion: varchar('emotion').primaryKey(),
 });
 
@@ -21,7 +21,7 @@ export const emotionAnalysis = pgTable('emotion_analysis', {
   emotion: varchar('emotion')
     .notNull()
     .references(() => emotionClasses.emotion),
-  confidence: decimal('confidence').notNull(),
+  confidence: real('confidence').notNull(),
   analyzedAt: timestamp('analyzed_at').notNull().defaultNow(),
 });
 

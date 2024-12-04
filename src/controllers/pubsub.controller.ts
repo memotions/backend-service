@@ -1,40 +1,35 @@
 import { Request, Response, NextFunction } from 'express';
-import { PubsubEvent, PubsubEventSchema } from '../types/pubsubs.types';
-import { DefaultResponse } from '../types/response.types';
-import PubSubService from '../services/pubsub.service';
+import { PubSubEvent, PubSubEventSchema } from '../types/pubsubs.types';
+import { DefaultSuccessResponse } from '../types/response.types';
+import EmotionsService from '../services/emotions.service';
+import JournalsService from '../services/journals.service';
 
-export default class PubsubController {
-  public static async hello(req, res) {
-    res.status(200).json({ message: 'Hello from Pubsub!' });
-  }
-
+export default class PubSubController {
   public static async processJournalEvent(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      // Validate input
-      const eventMessage = PubsubEventSchema.parse(req.body);
+      const eventMessage = PubSubEventSchema.parse(req.body);
 
-      // Add Emotions
-      await PubSubService.addEmotionAnalysis(
-        eventMessage.journalId, 
-        eventMessage.emotion,
-        eventMessage.analyzedAt ? new Date(eventMessage.createdAt) : new(Date)
+      await EmotionsService.addEmotionAnalysis(
+        eventMessage.journalId,
+        eventMessage.emotionAnalysis.map(entry => ({
+          emotion: entry.emotion,
+          confidence: entry.confidence,
+          analyzedAt: new Date(eventMessage.analyzedAt),
+        })),
       );
 
-      // Add Feedback
-      await PubSubService.addJournalFeedback(
-        eventMessage.journalId, 
-        eventMessage.feedback,
-        eventMessage.createdAt ? new Date(eventMessage.createdAt) : new(Date)
-      );
+      await JournalsService.addJournalFeedback(eventMessage.journalId, {
+        feedback: eventMessage.feedback,
+        createdAt: new Date(eventMessage.createdAt),
+      });
 
-      // Call Notification Service
-      const response: DefaultResponse<PubsubEvent | any> = {
+      const response: DefaultSuccessResponse<PubSubEvent> = {
         status: 'success',
-        data: eventMessage ,
+        data: eventMessage,
         errors: null,
       };
 

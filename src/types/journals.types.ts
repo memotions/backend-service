@@ -21,7 +21,10 @@ export const JournalSchema = SelectJournalSchema.extend({
 });
 
 export const AddJournalSchema = InsertJournalSchema.extend({
-  date: z.string().date().optional(),
+  datetime: z
+    .string()
+    .optional()
+    .transform(val => (val ? new Date(val) : undefined)),
   tagIds: z
     .array(z.number())
     .refine(tagIds => new Set(tagIds).size === tagIds.length, {
@@ -30,6 +33,11 @@ export const AddJournalSchema = InsertJournalSchema.extend({
     .optional(),
 }).omit({
   userId: true,
+  createdAt: true,
+});
+
+export const UpdateJournalSchema = AddJournalSchema.partial().omit({
+  tagIds: true,
 });
 
 export const QueryJournalSchema = z.object({
@@ -38,7 +46,6 @@ export const QueryJournalSchema = z.object({
     .optional()
     .transform(val => (val ? parseInt(val, 10) : undefined))
     .refine(val => !val || !Number.isNaN(val)),
-
   emotions: z
     .string()
     .optional()
@@ -46,7 +53,6 @@ export const QueryJournalSchema = z.object({
     .refine(val => !val || new Set(val).size === val.length, {
       message: 'Emotions must be unique',
     }),
-
   tags: z
     .string()
     .optional()
@@ -59,43 +65,45 @@ export const QueryJournalSchema = z.object({
     .refine(val => !val || new Set(val).size === val.length, {
       message: 'Tags must be unique',
     }),
-
-  date: z
+  datetime: z
     .string()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
-
   endDate: z
     .string()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
-
   startDate: z
     .string()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
-
   limit: z
     .string()
     .optional()
     .transform(val => (val ? parseInt(val, 10) : undefined))
     .refine(val => !val || !Number.isNaN(val)),
-
   title: z.string().optional(),
-
   search: z.string().optional(),
-
   starred: z
     .string()
     .optional()
     .transform(val => val?.toLowerCase() === 'true' || undefined),
-
   archived: z
     .string()
     .optional()
     .transform(val => val?.toLowerCase() === 'true' || undefined),
 });
 
+export const AddJournalFeedbackSchema = createInsertSchema(
+  journalFeedbacks,
+).omit({
+  journalId: true,
+});
+
 export type Journal = z.infer<typeof JournalSchema>;
 export type AddJournal = z.infer<typeof AddJournalSchema>;
+export type UpdateJournal = z.infer<typeof UpdateJournalSchema>;
 export type QueryJournal = z.infer<typeof QueryJournalSchema>;
+
+export type JournalFeedback = z.infer<typeof JournalFeedbackSchema>;
+export type AddJournalFeedback = z.infer<typeof AddJournalFeedbackSchema>;

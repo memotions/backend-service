@@ -197,7 +197,7 @@ export default class GameService {
         happy: 0,
         sad: 0,
         neutral: 0,
-        angry: 0,
+        anger: 0,
         scared: 0,
       },
     };

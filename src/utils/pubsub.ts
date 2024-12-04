@@ -2,19 +2,18 @@ import 'dotenv/config';
 import { z } from 'zod';
 import { PubSub, Topic } from '@google-cloud/pubsub';
 import Logger from './logger';
-import { PubsubEvent, PubsubEventSchema } from '../types/pubsubs.types';
+import { PubSubEvent, PubSubEventSchema } from '../types/pubsubs.types';
 
-export default class PubSubService {
+export default class PubSubHandler {
   private pubSubClient: PubSub;
 
   private topic: Topic;
 
-  constructor(
-    private topicId: string = process.env.TOPIC_ID || ''
-  ) {
-    // Check if TOPIC_ID is set
+  constructor(private topicId: string = process.env.TOPIC_ID || '') {
     if (!topicId) {
-      throw new Error('A topic name must be specified. Please set the TOPIC_ID environment variable.');
+      throw new Error(
+        'A topic name must be specified. Please set the TOPIC_ID environment variable.',
+      );
     }
     this.pubSubClient = new PubSub();
     this.topic = this.pubSubClient.topic(topicId);
@@ -23,48 +22,42 @@ export default class PubSubService {
   public async publishEventToPubSub(
     userId: number,
     journalId: number,
-    journalContent: string
+    journalContent: string,
   ): Promise<string | null> {
     try {
-      // Construct the event object
       const rawEvent = {
         userId,
         journalId,
-        journal: journalContent
+        journal: journalContent,
       };
-      // Validate Data Entries
-      const event = PubSubService.validateEvent(rawEvent);
+      const event = PubSubHandler.validateEvent(rawEvent);
 
-      // Convert to buffer
       const dataBuffer = Buffer.from(JSON.stringify(event));
       Logger.debug(`Data: ${dataBuffer}`);
 
-      // Publish message
       const messageId = await this.topic.publishMessage({ data: dataBuffer });
       Logger.info(`Message ${messageId} published to topic ${this.topicId}`);
-      
-      return messageId;
 
-      // exception
+      return messageId;
     } catch (error) {
       if (error instanceof z.ZodError) {
-          Logger.error('Validation failed', {
-          errors: error.errors
+        Logger.error('Validation failed', {
+          errors: error.errors,
         });
         throw new Error(
           `Validation Error: ${error.errors
             .map(e => `${e.path.join('.')} - ${e.message}`)
-            .join(', ')}`
+            .join(', ')}`,
         );
       }
       Logger.error('Failed to publish event to PubSub', {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       });
       throw error;
     }
   }
 
-  private static validateEvent(rawEvent: unknown = {}): PubsubEvent {
-    return PubsubEventSchema.parse(rawEvent);
+  private static validateEvent(rawEvent: unknown = {}): PubSubEvent {
+    return PubSubEventSchema.parse(rawEvent);
   }
 }
