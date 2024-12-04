@@ -5,6 +5,7 @@ import passport from 'passport';
 import Logger from './utils/logger';
 import httpLogger from './middlewares/httpLogger';
 import authRouter from './routes/auth.routes';
+import pubsubRouter from './routes/pubsub.routes';
 import journalsRouter from './routes/journals.routes';
 import tagsRouter from './routes/tags.routes';
 import gameRouter from './routes/game.routes';
@@ -22,6 +23,7 @@ app.use(passport.initialize());
 
 app.use('/auth', authRouter);
 app.use(authHandler);
+app.use('/pubsub', pubsubRouter);
 app.use('/journals', journalsRouter);
 app.use('/tags', tagsRouter);
 app.use('/', gameRouter);
