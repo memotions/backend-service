@@ -6,13 +6,10 @@ import { emotionAnalysis } from '../db/schema/emotions.schema';
 
 export default class EmotionsService {
   public static async getEmotionsCount(userId: number): Promise<EmotionsCount> {
-    const emotionAnalyzed = await db.query.emotionAnalysis.findMany({
-      where: eq(journals.userId, userId),
-      with: {
-        emotion: true,
-        journal: true,
-      },
-    });
+    const emotionAnalyzed = await db
+      .select()
+      .from(emotionAnalysis)
+      .where(eq(emotionAnalysis.journalId, userId));
 
     const emotionsCount: EmotionsCount = {
       happy: 0,
@@ -22,8 +19,18 @@ export default class EmotionsService {
       scared: 0,
     };
 
-    emotionAnalyzed.forEach(e => {
-      emotionsCount[e.emotion] += 1;
+    emotionAnalyzed.forEach(emotion => {
+      if (emotion.emotion === 'HAPPY') {
+        emotionsCount.happy += 1;
+      } else if (emotion.emotion === 'SAD') {
+        emotionsCount.sad += 1;
+      } else if (emotion.emotion === 'NEUTRAL') {
+        emotionsCount.neutral += 1;
+      } else if (emotion.emotion === 'ANGRY') {
+        emotionsCount.angry += 1;
+      } else if (emotion.emotion === 'SCARED') {
+        emotionsCount.scared += 1;
+      }
     });
 
     return emotionsCount;
@@ -34,11 +41,34 @@ export default class EmotionsService {
       where: eq(journals.userId, userId),
       orderBy: desc(emotionAnalysis.analyzedAt),
       with: {
-        emotion: true,
         journal: true,
       },
     });
 
     return emotionAnalyzed;
+  }
+
+  public static async getPositiveCount(userId: number): Promise<number> {
+    const { happy: positiveCount } = await this.getEmotionsCount(userId);
+
+    return positiveCount;
+  }
+
+  public static async getRiseCount(userId: number): Promise<number> {
+    const emotionAnalyzed = await this.getEmotionAnalysis(userId);
+
+    const negativeEmotions = new Set(['SCARED', 'ANGRY', 'SAD']);
+    const positiveEmotions = new Set(['HAPPY']);
+
+    return emotionAnalyzed
+      .map((item, index, arr) =>
+        index < arr.length - 1 &&
+        arr[index].journalId !== arr[index + 1].journalId &&
+        negativeEmotions.has(item.emotion) &&
+        positiveEmotions.has(arr[index + 1].emotion)
+          ? 1
+          : 0,
+      )
+      .reduce((sum: number, current: 1 | 0) => sum + current, 0);
   }
 }

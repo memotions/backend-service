@@ -27,7 +27,7 @@ export default class AchievementsService {
     const [registerAchievement] = await db
       .select()
       .from(achievements)
-      .where(eq(achievementTypes.type, 'REGISTER'))
+      .where(eq(achievements.type, 'REGISTER'))
       .limit(1);
 
     const [existingAchievement] = await db
@@ -113,47 +113,12 @@ export default class AchievementsService {
         ]),
       );
 
-    const emotionAnalyzed = await EmotionsService.getEmotionAnalysis(userId);
-
-    const positiveCount = emotionAnalyzed.filter(
-      e => e.emotion === 'HAPPY',
-    ).length;
-
-    const riseCount = emotionAnalyzed.reduce((count, current, index) => {
-      if (index === 0) return count;
-
-      const prevEmotion = emotionAnalyzed[index - 1];
-
-      const isNegativeEmotions = ['SAD', 'ANGRY', 'SCARED'];
-      const isPositiveEmotions = ['HAPPY'];
-
-      const transitionCondition =
-        prevEmotion.journalId !== current.journalId &&
-        isNegativeEmotions.includes(prevEmotion.emotion) &&
-        isPositiveEmotions.includes(current.emotion);
-
-      return transitionCondition ? count + 1 : count;
-    }, 0);
-
-    let positiveStreak = 0;
-    let currentStreak = 0;
-    let lastJournalId = 0;
-
-    emotionAnalyzed.forEach(e => {
-      if (lastJournalId !== e.journalId) {
-        if (e.emotion !== 'HAPPY') {
-          currentStreak = 0;
-        }
-        lastJournalId = e.journalId;
-      }
-
-      if (e.emotion === 'HAPPY') {
-        currentStreak += 1;
-        positiveStreak = Math.max(positiveStreak, currentStreak);
-      } else {
-        currentStreak = 0;
-      }
-    });
+    const positiveCount = await EmotionsService.getPositiveCount(userId);
+    const riseCount = await EmotionsService.getRiseCount(userId);
+    const positiveStreak = await GameService.getCurrentStreak(
+      userId,
+      'POSITIVE_STREAK',
+    );
 
     emotionsAchievements.forEach(async achievement => {
       let achieved = false;
@@ -166,7 +131,7 @@ export default class AchievementsService {
           achieved = riseCount >= achievement.criteria;
           break;
         case 'POSITIVE_STREAK':
-          achieved = positiveStreak >= achievement.criteria;
+          achieved = positiveStreak.streakLength >= achievement.criteria;
           break;
         default:
           break;

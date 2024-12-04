@@ -1,8 +1,8 @@
-import { desc, eq, lte, sql } from 'drizzle-orm';
+import { and, desc, eq, lte, sql } from 'drizzle-orm';
 import db from '../db';
 import { pointTransactions } from '../db/schema/points.schema';
 import {
-  Achievements,
+  Achievement,
   AddPoints,
   CurrentLevel,
   CurrentPoints,
@@ -13,6 +13,10 @@ import {
 import { streaks } from '../db/schema/streaks.schema';
 import { levels, userLevels } from '../db/schema/levels.schema';
 import JournalsService from './journals.service';
+import {
+  achievements,
+  userAchievements,
+} from '../db/schema/achievements.schema';
 
 export default class GameService {
   public static async addPoints(
@@ -38,18 +42,22 @@ export default class GameService {
     return currentPoints;
   }
 
-  public static async updateStreak(userId: number): Promise<void> {
+  public static async updateStreak(
+    userId: number,
+    category: string,
+  ): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const [currentStreak] = await db
       .select()
       .from(streaks)
-      .where(eq(streaks.userId, userId));
+      .where(and(eq(streaks.userId, userId), eq(streaks.category, category)));
 
     if (!currentStreak) {
       await db.insert(streaks).values({
         userId,
+        category,
         startDate: today,
         endDate: today,
         streakLength: 1,
@@ -83,11 +91,19 @@ export default class GameService {
     }
   }
 
-  public static async getCurrentStreak(userId: number): Promise<CurrentStreak> {
+  public static async getCurrentStreak(
+    userId: number,
+    category?: 'JOURNAL_STREAK' | 'POSITIVE_STREAK',
+  ): Promise<CurrentStreak> {
     const [currentStreak] = await db
       .select()
       .from(streaks)
-      .where(eq(streaks.userId, userId));
+      .where(
+        and(
+          eq(streaks.userId, userId),
+          category ? eq(streaks.category, category) : undefined,
+        ),
+      );
 
     return currentStreak;
   }
@@ -119,6 +135,8 @@ export default class GameService {
       },
     });
 
+    const currentPoints = await this.getCurrentPoints(userId);
+
     if (!currentLevel) {
       await db.insert(userLevels).values({ userId, levelId: 1 }).returning();
 
@@ -137,13 +155,30 @@ export default class GameService {
 
     return {
       currentLevel: currentLevel.level.level,
-      totalPoints: currentLevel.level.pointsRequired,
+      totalPoints: currentPoints.totalPoints,
       nextLevel: currentLevel.level.level + 1,
       pointsRequired: currentLevel.level.pointsRequired,
     };
   }
 
-  public static async getAchievements(userId: number): Promise<Achievements> {}
+  public static async getAchievements(userId: number): Promise<Achievement[]> {
+    const allAchievements = await db
+      .select({
+        achievement: achievements,
+        completedAt: userAchievements.completedAt,
+      })
+      .from(achievements)
+      .leftJoin(
+        userAchievements,
+        eq(userAchievements.achievementId, achievements.id),
+      )
+      .where(eq(userAchievements.userId, userId));
+
+    return allAchievements.map(item => ({
+      ...item.achievement,
+      completed: !!item.completedAt,
+    }));
+  }
 
   public static async getStats(userId: number): Promise<Stats> {
     const currentLevel = await this.getCurrentLevel(userId);

@@ -8,7 +8,7 @@ import {
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 
-export const pointTransactionTypeEnums = pgEnum('point_transaction_type', [
+export const pointTransactionTypeEnums = pgEnum('transaction_type', [
   'JOURNAL_ENTRY',
   'STREAK_BONUS',
   'ACHIEVEMENT_BONUS',

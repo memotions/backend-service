@@ -3,7 +3,8 @@ import db from '.';
 import Logger from '../utils/logger';
 import { achievementTypes, achievements } from './schema/achievements.schema';
 import { levels } from './schema/levels.schema';
-import { emotions } from './schema/emotions.schema';
+import { emotionClasses } from './schema/emotions.schema';
+import { streakCategories } from './schema/streaks.schema';
 
 type InsertAchievementType = typeof achievementTypes.$inferInsert;
 type InsertAchievement = typeof achievements.$inferInsert;
@@ -21,6 +22,8 @@ const defaultAchievementTypes: InsertAchievementType['type'][] = [
   'POSITIVE_STREAK',
 ];
 
+const defaultStreakCategories = ['JOURNAL_STREAK', 'POSITIVE_STREAK'];
+
 const defaultAchievements: InsertAchievement[] = JSON.parse(
   fs.readFileSync(`${__dirname}/achievements.json`, 'utf8'),
 ) as InsertAchievement[];
@@ -35,12 +38,16 @@ async function main(): Promise<void> {
 
   try {
     await db
-      .insert(emotions)
+      .insert(emotionClasses)
       .values(defaultEmotions.map(emotion => ({ emotion })))
       .onConflictDoNothing();
     await db
       .insert(achievementTypes)
       .values(defaultAchievementTypes.map(type => ({ type })))
+      .onConflictDoNothing();
+    await db
+      .insert(streakCategories)
+      .values(defaultStreakCategories.map(category => ({ category })))
       .onConflictDoNothing();
     await db
       .insert(achievements)

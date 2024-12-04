@@ -2,9 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import GameService from '../services/game.service';
 import { User } from '../types/users.types';
 import {
+  Achievement,
   CurrentLevel,
   CurrentPoints,
   CurrentStreak,
+  Stats,
 } from '../types/game.types';
 import { DefaultResponse } from '../types/response.types';
 
@@ -76,11 +78,41 @@ export default class GameController {
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {}
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+
+      const stats = await GameService.getStats(userId);
+
+      const response: DefaultResponse<Stats> = {
+        status: 'success',
+        data: stats,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 
   public static async getAchievements(
     req: Request,
     res: Response,
     next: NextFunction,
-  ) {}
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+
+      const achievements = await GameService.getAchievements(userId);
+
+      const response: DefaultResponse<Achievement[]> = {
+        status: 'success',
+        data: achievements,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -9,7 +9,7 @@ import {
 import { relations } from 'drizzle-orm';
 import { journals } from './journals.schema';
 
-export const emotions = pgTable('emotions', {
+export const emotionClasses = pgTable('emotionClasses', {
   emotion: varchar('emotion').primaryKey(),
 });
 
@@ -20,14 +20,17 @@ export const emotionAnalysis = pgTable('emotion_analysis', {
     .references(() => journals.id),
   emotion: varchar('emotion')
     .notNull()
-    .references(() => emotions.emotion),
+    .references(() => emotionClasses.emotion),
   confidence: decimal('confidence').notNull(),
   analyzedAt: timestamp('analyzed_at').notNull().defaultNow(),
 });
 
-export const emotionsRelations = relations(emotions, ({ many }) => ({
-  emotionAnalysis: many(emotionAnalysis),
-}));
+export const emotionClassesRelations = relations(
+  emotionClasses,
+  ({ many }) => ({
+    emotionAnalysis: many(emotionAnalysis),
+  }),
+);
 
 export const emotionAnalysisRelations = relations(
   emotionAnalysis,
@@ -36,9 +39,9 @@ export const emotionAnalysisRelations = relations(
       fields: [emotionAnalysis.journalId],
       references: [journals.id],
     }),
-    emotion: one(emotions, {
+    emotion: one(emotionClasses, {
       fields: [emotionAnalysis.emotion],
-      references: [emotions.emotion],
+      references: [emotionClasses.emotion],
     }),
   }),
 );

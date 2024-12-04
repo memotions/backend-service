@@ -21,14 +21,14 @@ export const CurrentStreakSchema = createSelectSchema(streaks).omit({
   userId: true,
 });
 
-export const AchievementsSchema = createSelectSchema(achievements).extend({
+export const AchievementSchema = createSelectSchema(achievements).extend({
   completed: z.boolean(),
 });
 
 export type AddPoints = z.infer<typeof AddPointsSchema>;
 export type PointTransaction = z.infer<typeof PointTransactionSchema>;
 export type CurrentStreak = z.infer<typeof CurrentStreakSchema>;
-export type Achievements = z.infer<typeof AchievementsSchema>;
+export type Achievement = z.infer<typeof AchievementSchema>;
 
 export type CurrentPoints = {
   totalPoints: number;
