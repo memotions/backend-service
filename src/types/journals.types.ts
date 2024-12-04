@@ -42,12 +42,7 @@ export const QueryJournalSchema = z.object({
   emotions: z
     .string()
     .optional()
-    .transform(val =>
-      val
-        ?.split(',')
-        .map(id => parseInt(id.trim(), 10))
-        .filter(id => !Number.isNaN(id)),
-    )
+    .transform(val => val?.split(','))
     .refine(val => !val || new Set(val).size === val.length, {
       message: 'Emotions must be unique',
     }),

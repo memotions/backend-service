@@ -9,155 +9,6 @@ externalDocs:
 servers:
   - url: http://localhost:8080
     description: Memotions API Server
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        email:
-          type: string
-    Journal:
-      type: object
-      properties:
-        id:
-          type: integer
-        title:
-          type: string
-        content:
-          type: string
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/Tag'
-        emotions:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-              confidence:
-                type: number
-        feedback:
-          type: string
-        createdAt:
-          type: string
-          format: date-time
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        userId:
-          type: integer
-    Emotion:
-      type: object
-      properties:
-        class:
-          type: string
-        confidence:
-          type: number
-        analyzedAt:
-          type: string
-          format: date-time
-    Achievement:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-        tier:
-          type: string
-          enum:
-            - BRONZE
-            - SILVER
-            - GOLD
-            - SPECIAL
-        pointsAwarded:
-          type: integer
-        completed:
-          type: boolean
-        completedAt:
-          type: string
-          format: date-time
-    Streak:
-      type: object
-      properties:
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        streakLength:
-          type: integer
-    Stats:
-      type: object
-      properties:
-        totalJournals:
-          type: integer
-        currentStreak:
-          $ref: '#/components/schemas/Streak'
-        longestStreak:
-          $ref: '#/components/schemas/Streak'
-        totalPoints:
-          type: integer
-        currentLevel:
-          type: integer
-        achievements:
-          type: object
-          properties:
-            completed:
-              type: integer
-            total:
-              type: integer
-        emotions:
-          type: object
-          properties:
-            happy:
-              type: integer
-            sad:
-              type: integer
-            angry:
-              type: integer
-            scared:
-              type: integer
-            neutral:
-              type: integer
-    CommonError:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-    ValidationError:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        path:
-          type: string
-        details:
-          type: array
-          items:
-            type: object
 security:
   - bearerAuth: []
 paths:
@@ -233,7 +84,7 @@ paths:
                   $ref: '#/components/schemas/ValidationError'
         '401':
           description: Unauthorized
-  /user:
+  /auth/profile:
     get:
       summary: Get current user
       security:
@@ -594,3 +445,153 @@ paths:
                 $ref: '#/components/schemas/Stats'
         '401':
           description: Unauthorized
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+    Journal:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        emotions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              confidence:
+                type: number
+        feedback:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        userId:
+          type: integer
+    Emotion:
+      type: object
+      properties:
+        class:
+          type: string
+        confidence:
+          type: number
+        analyzedAt:
+          type: string
+          format: date-time
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        tier:
+          type: number
+        pointsAwarded:
+          type: integer
+        completed:
+          type: boolean
+    Streak:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        streakLength:
+          type: integer
+    Level:
+      type: object
+      properties:
+        currentLevel:
+          type: integer
+        totalPoints:
+          type: integer
+        nextLevel:
+          type: integer
+        pointsRequired:
+          type: integer
+    Stats:
+      type: object
+      properties:
+        journalsCount:
+          type: integer
+        currentStreak:
+          $ref: '#/components/schemas/Streak'
+        currentLevel:
+          $ref: '#/components/schemas/Level'
+        achievementsCount:
+          type: object
+          properties:
+            completed:
+              type: integer
+            total:
+              type: integer
+        emotionsCount:
+          type: object
+          properties:
+            happy:
+              type: integer
+            sad:
+              type: integer
+            angry:
+              type: integer
+            scared:
+              type: integer
+            neutral:
+              type: integer
+    CommonError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    ValidationError:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
