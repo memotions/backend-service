@@ -16,10 +16,15 @@ export const AddPointsSchema = createInsertSchema(pointTransactions).omit({
   createdAt: true,
 });
 
-export const CurrentStreakSchema = createSelectSchema(streaks).omit({
-  id: true,
-  userId: true,
-});
+export const CurrentStreakSchema = createSelectSchema(streaks)
+  .omit({
+    id: true,
+    userId: true,
+    category: true,
+  })
+  .extend({
+    streakLength: z.number(),
+  });
 
 export const AchievementSchema = createSelectSchema(achievements).extend({
   completed: z.boolean(),

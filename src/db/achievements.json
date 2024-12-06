@@ -1,12 +1,14 @@
 [
   {
     "id": 1,
-    "name": "Prolog",
+    "name": "Menjadi Memothians",
     "description": "Mulai perjalanan pertama Anda di Memotions",
     "tier": 3,
     "pointsAwarded": 5,
     "type": "REGISTER",
-    "criteria": 1
+    "criteria": 1,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "menjadi-memothians"
   },
   {
     "id": 2,
@@ -15,7 +17,9 @@
     "tier": 1,
     "pointsAwarded": 10,
     "type": "JOURNAL_STREAK",
-    "criteria": 7
+    "criteria": 7,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "pejuang-konsistensi"
   },
   {
     "id": 3,
@@ -24,7 +28,9 @@
     "tier": 2,
     "pointsAwarded": 20,
     "type": "JOURNAL_STREAK",
-    "criteria": 14
+    "criteria": 14,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "pejuang-konsistensi"
   },
   {
     "id": 4,
@@ -33,7 +39,9 @@
     "tier": 3,
     "pointsAwarded": 50,
     "type": "JOURNAL_STREAK",
-    "criteria": 30
+    "criteria": 30,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "pejuang-konsistensi"
   },
   {
     "id": 5,
@@ -42,7 +50,9 @@
     "tier": 1,
     "pointsAwarded": 5,
     "type": "JOURNAL_COUNT",
-    "criteria": 1
+    "criteria": 1,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-berdedikasi"
   },
   {
     "id": 6,
@@ -51,7 +61,9 @@
     "tier": 2,
     "pointsAwarded": 15,
     "type": "JOURNAL_COUNT",
-    "criteria": 15
+    "criteria": 15,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-berdedikasi"
   },
   {
     "id": 7,
@@ -60,7 +72,9 @@
     "tier": 3,
     "pointsAwarded": 30,
     "type": "JOURNAL_COUNT",
-    "criteria": 50
+    "criteria": 50,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-berdedikasi"
   },
   {
     "id": 8,
@@ -69,7 +83,9 @@
     "tier": 1,
     "pointsAwarded": 10,
     "type": "POSITIVE_COUNT",
-    "criteria": 5
+    "criteria": 5,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penyebar-kebahagiaan"
   },
   {
     "id": 9,
@@ -78,7 +94,9 @@
     "tier": 2,
     "pointsAwarded": 20,
     "type": "POSITIVE_COUNT",
-    "criteria": 10
+    "criteria": 10,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penyebar-kebahagiaan"
   },
   {
     "id": 10,
@@ -87,7 +105,9 @@
     "tier": 3,
     "pointsAwarded": 40,
     "type": "POSITIVE_COUNT",
-    "criteria": 20
+    "criteria": 20,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penyebar-kebahagiaan"
   },
   {
     "id": 11,
@@ -96,7 +116,9 @@
     "tier": 1,
     "pointsAwarded": 10,
     "type": "RISE_COUNT",
-    "criteria": 3
+    "criteria": 3,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "sang-bangkit"
   },
   {
     "id": 12,
@@ -105,7 +127,9 @@
     "tier": 2,
     "pointsAwarded": 20,
     "type": "RISE_COUNT",
-    "criteria": 7
+    "criteria": 7,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "sang-bangkit"
   },
   {
     "id": 13,
@@ -114,7 +138,9 @@
     "tier": 3,
     "pointsAwarded": 50,
     "type": "RISE_COUNT",
-    "criteria": 15
+    "criteria": 15,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "sang-bangkit"
   },
   {
     "id": 14,
@@ -123,7 +149,9 @@
     "tier": 1,
     "pointsAwarded": 5,
     "type": "LEVEL",
-    "criteria": 5
+    "criteria": 5,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-veteran"
   },
   {
     "id": 15,
@@ -132,7 +160,9 @@
     "tier": 2,
     "pointsAwarded": 15,
     "type": "LEVEL",
-    "criteria": 10
+    "criteria": 10,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-veteran"
   },
   {
     "id": 16,
@@ -141,7 +171,9 @@
     "tier": 3,
     "pointsAwarded": 40,
     "type": "LEVEL",
-    "criteria": 25
+    "criteria": 25,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "penulis-veteran"
   },
   {
     "id": 17,
@@ -150,7 +182,9 @@
     "tier": 1,
     "pointsAwarded": 10,
     "type": "POSITIVE_STREAK",
-    "criteria": 5
+    "criteria": 5,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "rantai-senyuman"
   },
   {
     "id": 18,
@@ -159,7 +193,9 @@
     "tier": 2,
     "pointsAwarded": 20,
     "type": "POSITIVE_STREAK",
-    "criteria": 10
+    "criteria": 10,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "rantai-senyuman"
   },
   {
     "id": 19,
@@ -168,6 +204,8 @@
     "tier": 3,
     "pointsAwarded": 40,
     "type": "POSITIVE_STREAK",
-    "criteria": 20
+    "criteria": 20,
+    "iconUrl": "https://storage.googleapis.com/memotions-assets/test.png",
+    "code": "rantai-senyuman"
   }
 ]

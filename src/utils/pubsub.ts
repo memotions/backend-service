@@ -28,9 +28,9 @@ export default class PubSubHandler {
       const rawEvent = {
         userId,
         journalId,
-        journal: journalContent,
+        journalContent,
       };
-      const event = PubSubHandler.validateEvent(rawEvent);
+      const event: PubSubEvent = PubSubEventSchema.parse(rawEvent);
 
       const dataBuffer = Buffer.from(JSON.stringify(event));
       Logger.debug(`Data: ${dataBuffer}`);
@@ -55,9 +55,5 @@ export default class PubSubHandler {
       });
       throw error;
     }
-  }
-
-  private static validateEvent(rawEvent: unknown = {}): PubSubEvent {
-    return PubSubEventSchema.parse(rawEvent);
   }
 }

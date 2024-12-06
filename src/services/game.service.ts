@@ -1,4 +1,4 @@
-import { and, desc, eq, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, lte, sql } from 'drizzle-orm';
 import db from '../db';
 import { pointTransactions } from '../db/schema/points.schema';
 import {
@@ -17,6 +17,7 @@ import {
   achievements,
   userAchievements,
 } from '../db/schema/achievements.schema';
+import AppError from '../utils/appError';
 
 export default class GameService {
   public static async addPoints(
@@ -27,6 +28,8 @@ export default class GameService {
       .insert(pointTransactions)
       .values({ userId, ...points })
       .returning();
+
+    await this.updateLevel(userId);
 
     return newPoints;
   }
@@ -44,24 +47,26 @@ export default class GameService {
 
   public static async updateStreak(
     userId: number,
-    category: string,
+    category: 'JOURNAL_STREAK' | 'POSITIVE_STREAK',
   ): Promise<void> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [currentStreak] = await db
+    let [currentStreak] = await db
       .select()
       .from(streaks)
       .where(and(eq(streaks.userId, userId), eq(streaks.category, category)));
 
     if (!currentStreak) {
-      await db.insert(streaks).values({
-        userId,
-        category,
-        startDate: today,
-        endDate: today,
-        streakLength: 1,
-      });
+      [currentStreak] = await db
+        .insert(streaks)
+        .values({
+          userId,
+          category,
+          startDate: today,
+          endDate: today,
+        })
+        .returning();
     }
 
     const lastEntryDate = new Date(currentStreak.endDate);
@@ -76,7 +81,6 @@ export default class GameService {
         .update(streaks)
         .set({
           endDate: today,
-          streakLength: currentStreak.streakLength + 1,
         })
         .where(eq(streaks.id, currentStreak.id));
     } else if (differenceInDays > 1) {
@@ -85,7 +89,6 @@ export default class GameService {
         .set({
           startDate: today,
           endDate: today,
-          streakLength: 1,
         })
         .where(eq(streaks.id, currentStreak.id));
     }
@@ -105,7 +108,22 @@ export default class GameService {
         ),
       );
 
-    return currentStreak;
+    if (!currentStreak) {
+      throw new AppError('STREAK_NOT_FOUND', 404, 'Streak not found');
+    }
+
+    const startDate = new Date(currentStreak.startDate);
+    const endDate = new Date(currentStreak.endDate);
+    const streakLength =
+      Math.floor(
+        (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+      ) + 1;
+
+    return {
+      startDate,
+      endDate,
+      streakLength,
+    };
   }
 
   public static async updateLevel(userId: number): Promise<void> {
@@ -147,52 +165,96 @@ export default class GameService {
 
       return {
         currentLevel: levelDetails.level,
-        totalPoints: 0,
+        totalPoints: currentPoints.totalPoints,
         nextLevel: levelDetails.level + 1,
         pointsRequired: levelDetails.pointsRequired,
       };
     }
 
+    const [nextLevelDetails] = await db
+      .select()
+      .from(levels)
+      .where(eq(levels.level, currentLevel.level.level + 1));
+
     return {
       currentLevel: currentLevel.level.level,
       totalPoints: currentPoints.totalPoints,
-      nextLevel: currentLevel.level.level + 1,
-      pointsRequired: currentLevel.level.pointsRequired,
+      nextLevel: nextLevelDetails.level,
+      pointsRequired: nextLevelDetails.pointsRequired,
     };
   }
 
-  public static async getAchievements(userId: number): Promise<Achievement[]> {
+  public static async getAllAchievements(
+    userId: number,
+  ): Promise<Achievement[]> {
     const allAchievements = await db
-      .select({
-        achievement: achievements,
-        completedAt: userAchievements.completedAt,
-      })
+      .select()
       .from(achievements)
       .leftJoin(
         userAchievements,
-        eq(userAchievements.achievementId, achievements.id),
+        and(
+          eq(achievements.id, userAchievements.achievementId),
+          eq(userAchievements.userId, userId),
+        ),
       )
-      .where(eq(userAchievements.userId, userId));
+      .orderBy(asc(achievements.id));
 
     return allAchievements.map(item => ({
-      ...item.achievement,
-      completed: !!item.completedAt,
+      ...item.achievements,
+      completed: item.user_achievements !== null,
     }));
+  }
+
+  public static async getAchievementById(
+    userId: number,
+    id: number,
+  ): Promise<Achievement> {
+    const [achievement] = await db
+      .select()
+      .from(achievements)
+      .leftJoin(
+        userAchievements,
+        and(
+          eq(achievements.id, userAchievements.achievementId),
+          eq(userAchievements.userId, userId),
+        ),
+      )
+      .where(eq(achievements.id, id))
+      .limit(1);
+
+    if (!achievement) {
+      throw new AppError('ACHIEVEMENT_NOT_FOUND', 404, 'Achievement not found');
+    }
+
+    return {
+      ...achievement.achievements,
+      completed: achievement.user_achievements !== null,
+    };
+  }
+
+  public static async getAchivementsCount(userId: number): Promise<{
+    total: number;
+    completed: number;
+  }> {
+    const allAchievements = await this.getAllAchievements(userId);
+
+    return {
+      total: allAchievements.length,
+      completed: allAchievements.filter(item => item.completed).length,
+    };
   }
 
   public static async getStats(userId: number): Promise<Stats> {
     const currentLevel = await this.getCurrentLevel(userId);
     const currentStreak = await this.getCurrentStreak(userId);
     const journalsCount = await JournalsService.getJournalsCount(userId);
+    const achievementsCount = await this.getAchivementsCount(userId);
 
     return {
       currentLevel,
       currentStreak,
       journalsCount,
-      achievementsCount: {
-        total: 0,
-        completed: 0,
-      },
+      achievementsCount,
       emotions: {
         happy: 0,
         sad: 0,

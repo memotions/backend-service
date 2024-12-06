@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { journalFeedbacks, journals } from '../db/schema/journals.schema';
-import { TagSchema } from './tags.types';
 import { EmotionAnalysisSchema } from './emotions.types';
 
 const SelectJournalSchema = createSelectSchema(journals);
@@ -13,9 +12,9 @@ export const JournalFeedbackSchema = createSelectSchema(journalFeedbacks).omit({
 });
 
 export const JournalSchema = SelectJournalSchema.extend({
-  tags: TagSchema.array(),
-  feedback: JournalFeedbackSchema,
-  emotionAnalysis: z.array(EmotionAnalysisSchema),
+  tags: z.array(z.string()).nullable(),
+  emotionAnalysis: z.array(EmotionAnalysisSchema).nullable(),
+  feedback: JournalFeedbackSchema.nullable(),
 }).omit({
   userId: true,
 });
@@ -23,11 +22,19 @@ export const JournalSchema = SelectJournalSchema.extend({
 export const AddJournalSchema = InsertJournalSchema.extend({
   datetime: z
     .string()
+    .datetime()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
-  tagIds: z
-    .array(z.number())
-    .refine(tagIds => new Set(tagIds).size === tagIds.length, {
+  tags: z
+    .array(
+      z.string().transform(val =>
+        val
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, ''),
+      ),
+    )
+    .refine(tags => new Set(tags).size === tags.length, {
       message: 'Tags must be unique',
     })
     .optional(),
@@ -36,9 +43,7 @@ export const AddJournalSchema = InsertJournalSchema.extend({
   createdAt: true,
 });
 
-export const UpdateJournalSchema = AddJournalSchema.partial().omit({
-  tagIds: true,
-});
+export const UpdateJournalSchema = AddJournalSchema.partial();
 
 export const QueryJournalSchema = z.object({
   id: z
@@ -67,14 +72,17 @@ export const QueryJournalSchema = z.object({
     }),
   datetime: z
     .string()
+    .datetime()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
   endDate: z
     .string()
+    .date()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
   startDate: z
     .string()
+    .date()
     .optional()
     .transform(val => (val ? new Date(val) : undefined)),
   limit: z

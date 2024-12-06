@@ -3,11 +3,16 @@ import {
   AddJournalSchema,
   Journal,
   QueryJournalSchema,
+  UpdateJournalSchema,
 } from '../types/journals.types';
 import JournalsService from '../services/journals.service';
 import { DefaultSuccessResponse } from '../types/response.types';
 import { User } from '../types/users.types';
 import { Tag } from '../types/tags.types';
+import AchievementsService from '../services/achievements.service';
+import Logger from '../utils/logger';
+import PubSubHandler from '../utils/pubsub';
+import GameService from '../services/game.service';
 
 export default class JournalsController {
   public static async addJournal(
@@ -18,8 +23,34 @@ export default class JournalsController {
     try {
       const { id: userId } = req.user as User;
       const journal = AddJournalSchema.parse(req.body);
+      Logger.debug({ journal });
 
       const newJournal = await JournalsService.addJournal(userId, journal);
+
+      GameService.updateStreak(userId, 'JOURNAL_STREAK').then(() => {
+        Logger.info('Updated journal streak');
+      });
+
+      GameService.addPoints(userId, {
+        points: 10,
+        type: 'JOURNAL_ENTRY',
+      });
+
+      if (newJournal.status === 'PUBLISHED') {
+        const pubsub = new PubSubHandler();
+        pubsub
+          .publishEventToPubSub(userId, newJournal.id, newJournal.content)
+          .then(() => {
+            Logger.info('Published journal to pubsub');
+          })
+          .catch(error => Logger.error(error));
+
+        AchievementsService.processOnJournalPublished(userId)
+          .then(() => {
+            Logger.info('Published journal achievements processed');
+          })
+          .catch(error => Logger.error(error));
+      }
 
       const response: DefaultSuccessResponse<Journal> = {
         status: 'success',
@@ -84,13 +115,33 @@ export default class JournalsController {
     try {
       const { id: userId } = req.user as User;
       const journalId = Number(req.params.journalId);
-      const journal = AddJournalSchema.parse(req.body);
+      const journal = UpdateJournalSchema.parse(req.body);
 
       const updatedJournal = await JournalsService.updateJournalById(
         userId,
         journalId,
         journal,
       );
+
+      if (updatedJournal.status === 'PUBLISHED') {
+        const pubsub = new PubSubHandler();
+        pubsub
+          .publishEventToPubSub(
+            userId,
+            updatedJournal.id,
+            updatedJournal.content,
+          )
+          .then(() => {
+            Logger.info('Published journal to pubsub');
+          })
+          .catch(error => Logger.error(error));
+
+        AchievementsService.processOnJournalPublished(userId)
+          .then(() => {
+            Logger.info('Published journal achievements processed');
+          })
+          .catch(error => Logger.error(error));
+      }
 
       const response: DefaultSuccessResponse<Journal> = {
         status: 'success',
@@ -114,7 +165,7 @@ export default class JournalsController {
 
       await JournalsService.deleteJournalById(userId, journalId);
 
-      res.status(204);
+      res.status(204).end();
     } catch (error) {
       next(error);
     }
@@ -131,7 +182,7 @@ export default class JournalsController {
 
       await JournalsService.toggleStarJournal(userId, journalId);
 
-      res.status(204);
+      res.status(204).end();
     } catch (error) {
       next(error);
     }
@@ -151,7 +202,7 @@ export default class JournalsController {
         journalId,
       );
 
-      const response: DefaultSuccessResponse<Tag[]> = {
+      const response: DefaultSuccessResponse<string[]> = {
         status: 'success',
         data: journalTags,
         errors: null,

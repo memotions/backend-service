@@ -10,12 +10,7 @@ export default class TagsController {
       const { id: userId } = req.user as User;
       const tag = AddTagSchema.parse(req.body);
 
-      tag.name = tag.name
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
-
-      const newTag = await TagsService.addTag(userId, tag);
+      const newTag = await TagsService.addTag(userId, tag.name);
 
       const response: DefaultSuccessResponse<Tag> = {
         status: 'success',

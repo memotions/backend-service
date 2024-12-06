@@ -20,6 +20,7 @@ export default class AuthController {
       const { name, email, password } = RegisterUserSchema.parse(req.body);
 
       const newUser = await AuthService.register(email, name, password);
+
       AchievementsService.processOnUserRegistered(newUser.user.id)
         .then(() => Logger.info('Registered user achievements processed'))
         .catch(error => Logger.error(error));

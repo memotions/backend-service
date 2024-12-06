@@ -16,7 +16,6 @@ export const streaks = pgTable('streaks', {
     .references(() => streakCategories.category),
   startDate: date('start_date', { mode: 'date' }).notNull(),
   endDate: date('end_date', { mode: 'date' }).notNull(),
-  streakLength: integer('streak_length').notNull(),
 });
 
 export const streaksRelations = relations(streaks, ({ one }) => ({

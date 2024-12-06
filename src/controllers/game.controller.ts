@@ -19,7 +19,10 @@ export default class GameController {
     try {
       const { id: userId } = req.user as User;
 
-      const currentStreak = await GameService.getCurrentStreak(userId);
+      const currentStreak = await GameService.getCurrentStreak(
+        userId,
+        'JOURNAL_STREAK',
+      );
 
       const response: DefaultSuccessResponse<CurrentStreak> = {
         status: 'success',
@@ -95,7 +98,7 @@ export default class GameController {
     }
   }
 
-  public static async getAchievements(
+  public static async getAllAchievements(
     req: Request,
     res: Response,
     next: NextFunction,
@@ -103,11 +106,36 @@ export default class GameController {
     try {
       const { id: userId } = req.user as User;
 
-      const achievements = await GameService.getAchievements(userId);
+      const allAchievements = await GameService.getAllAchievements(userId);
 
       const response: DefaultSuccessResponse<Achievement[]> = {
         status: 'success',
-        data: achievements,
+        data: allAchievements,
+        errors: null,
+      };
+      res.status(200).json(response);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public static async getAchievementById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const { id: userId } = req.user as User;
+      const achievementId = Number(req.params.achievementId);
+
+      const achievement = await GameService.getAchievementById(
+        userId,
+        achievementId,
+      );
+
+      const response: DefaultSuccessResponse<Achievement> = {
+        status: 'success',
+        data: achievement,
         errors: null,
       };
       res.status(200).json(response);

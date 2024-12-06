@@ -15,7 +15,9 @@ export const achievementTypes = pgTable('achievement_types', {
 
 export const achievements = pgTable('achievements', {
   id: serial('id').primaryKey(),
+  code: varchar('code').notNull(),
   name: varchar('name').notNull(),
+  iconUrl: varchar('icon_url').notNull(),
   type: varchar('type')
     .references(() => achievementTypes.type)
     .notNull(),
@@ -34,21 +36,14 @@ export const userAchievements = pgTable(
     achievementId: integer('achievement_id')
       .notNull()
       .references(() => achievements.id),
-    completedAt: timestamp('completed_at'),
+    completedAt: timestamp('completed_at').defaultNow(),
   },
   table => [primaryKey({ columns: [table.userId, table.achievementId] })],
 );
 
-export const achievementsRelations = relations(
-  achievements,
-  ({ many, one }) => ({
-    userAchievements: many(userAchievements),
-    type: one(achievementTypes, {
-      fields: [achievements.type],
-      references: [achievementTypes.type],
-    }),
-  }),
-);
+export const achievementsRelations = relations(achievements, ({ many }) => ({
+  userAchievements: many(userAchievements),
+}));
 
 export const userAchievementsRelations = relations(
   userAchievements,

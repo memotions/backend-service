@@ -10,9 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
 export default class AuthService {
   public static generateToken(userId: number) {
-    return jwt.sign({ id: userId }, JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    return jwt.sign({ id: userId }, JWT_SECRET);
   }
 
   public static register = async (

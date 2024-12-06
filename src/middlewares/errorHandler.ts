@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import AppError from '../utils/appError';
 import { ErrorDetails, DefaultErrorResponse } from '../types/response.types';
+import Logger from '../utils/logger';
 
 const zodErrorHandler = (error: z.ZodError): ErrorDetails[] =>
   error.issues.map(issue => {
@@ -99,6 +100,8 @@ const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  Logger.error(error.message);
+
   if (error instanceof z.ZodError) {
     const errors = zodErrorHandler(error);
 

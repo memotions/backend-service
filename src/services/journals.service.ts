@@ -27,35 +27,43 @@ import {
 import AppError from '../utils/appError';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
 import { Tag } from '../types/tags.types';
+import TagsService from './tags.service';
+import Logger from '../utils/logger';
 
 export default class JournalsService {
   public static async addJournal(
     userId: number,
     journal: AddJournal,
-  ): Promise<Journal | any> {
-    const { tagIds, datetime, ...journalData } = journal;
+  ): Promise<Journal> {
+    const { tags: tagNames, ...journalData } = journal;
+
+    const tagIds: number[] = [];
+    if (tagNames) {
+      const tagPromises = tagNames.map(async tagName => {
+        let tag: Tag;
+        try {
+          tag = await TagsService.findTagByName(userId, tagName);
+        } catch (error) {
+          tag = await TagsService.addTag(userId, tagName);
+        }
+        return tag.id;
+      });
+
+      const resolvedTagIds = await Promise.all(tagPromises);
+      tagIds.push(...resolvedTagIds);
+    }
 
     const [newJournal] = await db
       .insert(journals)
       .values({
         userId,
-        datetime: datetime ? new Date(datetime) : new Date(),
         ...journalData,
       })
       .returning();
 
-    if (journal.tagIds) {
-      const selectedTags = await db
-        .select()
-        .from(tags)
-        .where(inArray(tags.id, journal.tagIds));
-
-      if (selectedTags.length !== journal.tagIds.length) {
-        throw new AppError('TAG_NOT_FOUND', 404, 'Tag not found');
-      }
-
+    if (tagIds.length > 0) {
       await db.insert(journalTags).values(
-        journal.tagIds.map((tagId: number) => ({
+        tagIds.map((tagId: number) => ({
           userId,
           journalId: newJournal.id,
           tagId,
@@ -63,14 +71,27 @@ export default class JournalsService {
       );
     }
 
-    return newJournal;
+    const newJournalTags = await db
+      .select()
+      .from(tags)
+      .where(inArray(tags.id, tagIds));
+
+    return {
+      ...newJournal,
+      tags: newJournalTags.map(tag => tag.name),
+      emotionAnalysis: [],
+      feedback: null,
+    };
   }
 
   public static async findJournals(
     userId: number,
     query?: QueryJournal,
   ): Promise<Journal[]> {
-    const conditions: SQL[] = [eq(journals.userId, userId)];
+    const conditions: SQL[] = [
+      eq(journals.userId, userId),
+      eq(journals.deleted, false),
+    ];
 
     const addCondition = (condition?: SQL) => {
       if (condition) {
@@ -133,9 +154,9 @@ export default class JournalsService {
     }
     addCondition(emotionCondition);
 
-    const raw = await db.query?.journals.findMany({
-      where: conditions.length > 1 ? and(...conditions) : undefined,
-      orderBy: [desc(journals.datetime)],
+    const raw = await db.query!.journals.findMany({
+      where: and(...conditions),
+      orderBy: [desc(journals.datetime), desc(journals.id)],
       limit: query?.limit as number,
       columns: {
         userId: false,
@@ -169,10 +190,7 @@ export default class JournalsService {
 
     const allJournals: Journal[] = raw.map(journal => ({
       ...journal,
-      tags: journal.tags.map(tag => ({
-        id: tag.tag.id,
-        name: tag.tag.name,
-      })),
+      tags: journal.tags.map(tag => tag.tag.name),
     }));
 
     return allJournals;
@@ -197,18 +215,61 @@ export default class JournalsService {
   public static async updateJournalById(
     userId: number,
     journalId: number,
-    journalData: UpdateJournal,
+    journal: UpdateJournal,
   ): Promise<Journal> {
-    const [updatedJournal] = await db
-      .update(journals)
-      .set({
-        ...journalData,
-      })
-      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)))
-      .returning();
+    const existingJournal = await this.findJournalById(userId, journalId);
 
-    if (!updatedJournal) {
-      throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
+    const { tags: tagNames, ...journalData } = journal;
+    Logger.debug(journalData);
+
+    const tagIds: number[] = [];
+    if (tagNames) {
+      const tagPromises = tagNames.map(async tagName => {
+        let tag: Tag;
+        try {
+          tag = await TagsService.findTagByName(userId, tagName);
+        } catch (error) {
+          tag = await TagsService.addTag(userId, tagName);
+        }
+        return tag.id;
+      });
+
+      const resolvedTagIds = await Promise.all(tagPromises);
+      tagIds.push(...resolvedTagIds);
+
+      await db
+        .delete(journalTags)
+        .where(
+          and(
+            eq(journalTags.journalId, journalId),
+            eq(journalTags.userId, userId),
+          ),
+        );
+
+      await db.insert(journalTags).values(
+        tagIds.map((tagId: number) => ({
+          userId,
+          journalId,
+          tagId,
+        })),
+      );
+    }
+
+    if (existingJournal.status !== 'DRAFT') {
+      throw new AppError(
+        'INVALID_JOURNAL_STATUS',
+        400,
+        'Journal status is not draft',
+      );
+    }
+
+    if (journalData && Object.keys(journalData).length > 0) {
+      await db
+        .update(journals)
+        .set(journalData)
+        .where(and(eq(journals.userId, userId), eq(journals.id, journalId)));
+    } else {
+      throw new AppError('INVALID_JOURNAL_DATA', 400, 'Invalid journal data');
     }
 
     return this.findJournalById(userId, journalId);
@@ -218,14 +279,19 @@ export default class JournalsService {
     userId: number,
     journalId: number,
   ): Promise<void> {
-    const [deletedJournal] = await db
-      .delete(journals)
-      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)))
-      .returning();
+    const [{ deleted }] = await db
+      .select()
+      .from(journals)
+      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)));
 
-    if (!deletedJournal) {
+    if (deleted) {
       throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
     }
+
+    await db
+      .update(journals)
+      .set({ deleted: true })
+      .where(and(eq(journals.userId, userId), eq(journals.id, journalId)));
   }
 
   public static async toggleStarJournal(
@@ -246,7 +312,7 @@ export default class JournalsService {
   public static async findJournalTags(
     userId: number,
     journalId: number,
-  ): Promise<Tag[]> {
+  ): Promise<string[]> {
     const raw = await db.query?.journalTags.findMany({
       where: and(eq(journalTags.journalId, journalId), eq(tags.userId, userId)),
       with: {
@@ -263,10 +329,7 @@ export default class JournalsService {
       throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
     }
 
-    const allJournalTags = raw.map(journalTag => ({
-      id: journalTag.tag.id,
-      name: journalTag.tag.name,
-    }));
+    const allJournalTags = raw.map(journalTag => journalTag.tag.name);
 
     return allJournalTags;
   }
@@ -335,10 +398,10 @@ export default class JournalsService {
 
   public static async getJournalsCount(userId: number): Promise<number> {
     const [{ journalsCount }] = await db
-      .select({ journalsCount: sql<number>`count(*)` })
+      .select({ journalsCount: sql`count(*)` })
       .from(journals)
       .where(eq(journals.userId, userId));
 
-    return journalsCount;
+    return Number(journalsCount as string);
   }
 }
