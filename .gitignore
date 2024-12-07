@@ -1,6 +1,6 @@
 .env
-.env.production
-.env.development
+package-lock.json
 /node_modules
 /dist
 /logs
+deploy.sh
