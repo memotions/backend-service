@@ -6,7 +6,7 @@ import {
 } from '../db/schema/achievements.schema';
 import JournalsService from './journals.service';
 import GameService from './game.service';
-import EmotionsService from './emotions.service';
+import EmotionAnalysisService from './emotionsAnalysis.service';
 import { Achievement } from '../types/game.types';
 
 export default class AchievementsService {
@@ -157,8 +157,8 @@ export default class AchievementsService {
       );
 
     const [positiveCount, riseCount, positiveStreak] = await Promise.all([
-      EmotionsService.getPositiveCount(userId),
-      EmotionsService.getRiseCount(userId),
+      EmotionAnalysisService.getPositiveCount(userId),
+      EmotionAnalysisService.getRiseCount(userId),
       GameService.getCurrentStreak(userId, 'POSITIVE_STREAK'),
     ]);
 

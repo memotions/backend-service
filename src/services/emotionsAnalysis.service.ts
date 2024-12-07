@@ -1,14 +1,15 @@
-import { desc, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
   AddEmotionAnalysis,
   EmotionAnalysis,
   EmotionsCount,
+  GroupedEmotionAnalysis,
 } from '../types/emotions.types';
 import db from '../db';
-import { journals } from '../db/schema/journals.schema';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
+import { journals } from '../db/schema/journals.schema';
 
-export default class EmotionsService {
+export default class EmotionAnalysisService {
   public static async addEmotionAnalysis(
     journalId: number,
     emotionAnalysisEntries: AddEmotionAnalysis[],
@@ -16,9 +17,61 @@ export default class EmotionsService {
     const newEmotionAnalysis = await db
       .insert(emotionAnalysis)
       .values(emotionAnalysisEntries.map(entry => ({ ...entry, journalId })))
+      .onConflictDoNothing()
       .returning();
 
     return newEmotionAnalysis;
+  }
+
+  public static async getEmotionAnalysis(
+    userId: number,
+  ): Promise<EmotionAnalysis[]> {
+    const emotionAnalyzed = await db
+      .select({
+        id: emotionAnalysis.id,
+        journalId: emotionAnalysis.journalId,
+        emotion: emotionAnalysis.emotion,
+        confidence: emotionAnalysis.confidence,
+        analyzedAt: emotionAnalysis.analyzedAt,
+      })
+      .from(emotionAnalysis)
+      .leftJoin(journals, eq(journals.id, emotionAnalysis.journalId))
+      .where(eq(journals.userId, userId));
+
+    return emotionAnalyzed;
+  }
+
+  public static async getGroupedEmotionAnalysis(
+    userId: number,
+  ): Promise<GroupedEmotionAnalysis[]> {
+    const groupedEmotionAnalysis = await db.query.journals.findMany({
+      where: eq(journals.userId, userId),
+      columns: {
+        id: true,
+        datetime: true,
+      },
+      with: {
+        emotionAnalysis: {
+          columns: {
+            emotion: true,
+            confidence: true,
+            analyzedAt: true,
+          },
+        },
+      },
+    });
+
+    return groupedEmotionAnalysis
+      .filter(journal => journal.emotionAnalysis.length > 0)
+      .map(journal => ({
+        journalId: journal.id,
+        journalDatetime: journal.datetime,
+        emotionAnalysis: journal.emotionAnalysis.map(emotion => ({
+          emotion: emotion.emotion,
+          confidence: emotion.confidence,
+        })),
+        analyzedAt: journal.emotionAnalysis[0]?.analyzedAt ?? new Date(),
+      }));
   }
 
   public static async getEmotionsCount(userId: number): Promise<EmotionsCount> {
@@ -50,18 +103,6 @@ export default class EmotionsService {
     });
 
     return emotionsCount;
-  }
-
-  public static async getEmotionAnalysis(userId: number) {
-    const emotionAnalyzed = await db.query.emotionAnalysis.findMany({
-      where: eq(journals.userId, userId),
-      orderBy: desc(emotionAnalysis.analyzedAt),
-      with: {
-        journal: true,
-      },
-    });
-
-    return emotionAnalyzed;
   }
 
   public static async getPositiveCount(userId: number): Promise<number> {

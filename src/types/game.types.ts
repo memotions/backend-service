@@ -47,14 +47,14 @@ export type CurrentLevel = {
 };
 
 export type Stats = {
-  journalsCount: number;
+  journalCount: number;
   currentStreak: CurrentStreak;
   currentLevel: CurrentLevel;
-  achievementsCount: {
+  achievementCount: {
     completed: number;
     total: number;
   };
-  emotions: {
+  emotionCount: {
     happy: number;
     sad: number;
     anger: number;

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 import { PubSub, Topic } from '@google-cloud/pubsub';
 import Logger from './logger';
-import { PubSubEvent, PubSubEventSchema } from '../types/pubsubs.types';
+import { DataEvent, DataEventSchema } from '../types/pubsubs.types';
 
 export default class PubSubHandler {
   private pubSubClient: PubSub;
@@ -30,10 +30,10 @@ export default class PubSubHandler {
         journalId,
         journalContent,
       };
-      const event: PubSubEvent = PubSubEventSchema.parse(rawEvent);
+      const event: DataEvent = DataEventSchema.parse(rawEvent);
 
       const dataBuffer = Buffer.from(JSON.stringify(event));
-      Logger.debug(`Data: ${dataBuffer}`);
+      Logger.debug(`Data to be published: ${dataBuffer}`);
 
       const messageId = await this.topic.publishMessage({ data: dataBuffer });
       Logger.info(`Message ${messageId} published to topic ${this.topicId}`);

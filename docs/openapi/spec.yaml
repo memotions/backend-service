@@ -7,8 +7,10 @@ externalDocs:
   url: https://github.com/memotions/backend-service
   description: Memotions API Repository
 servers:
+  - url: https://backend-api-635053273661.asia-southeast2.run.app
+    description: Memotions API Cloud Server
   - url: http://localhost:8080
-    description: Memotions API Server
+    description: Memotions API Local Server
 security:
   - bearerAuth: []
 paths:
@@ -95,7 +97,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
         '401':
           description: Unauthorized
   /journals:
@@ -115,15 +122,15 @@ paths:
           schema:
             type: string
           required: false
-          description: Comma-separated list of tag IDs
-          example: '1,2'
+          description: Comma-separated list of tags
+          example: 'school,work'
         - in: query
           name: emotions
           schema:
             type: string
           required: false
           description: Comma-separated list of emotion classes
-          example: '1,2'
+          example: 'HAPPY,ANGER'
         - in: query
           name: date
           schema:
@@ -178,10 +185,23 @@ paths:
                   type: string
                 content:
                   type: string
-                tagIds:
+                datetime:
+                  type: string
+                  format: date-time
+                starred:
+                  type: boolean
+                  default: false
+                status:
+                  type: string
+                  enum:
+                    - DRAFT
+                    - PUBLISHED
+                    - ANALYZED
+                  default: DRAFT
+                tags:
                   type: array
                   items:
-                    type: integer
+                    type: string
       responses:
         '201':
           description: Journal created successfully
@@ -217,6 +237,76 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Journal'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal not found
+    patch:
+      summary: Update a journal by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                datetime:
+                  type: string
+                  format: date-time
+                starred:
+                  type: boolean
+                  default: false
+                status:
+                  type: string
+                  enum:
+                    - DRAFT
+                    - PUBLISHED
+                    - ANALYZED
+                  default: DRAFT
+      responses:
+        '200':
+          description: Journal updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Journal'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Journal not found
+    delete:
+      summary: Delete a journal by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: journalId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Journal deleted successfully
         '401':
           description: Unauthorized
         '404':
@@ -415,7 +505,7 @@ paths:
                 $ref: '#/components/schemas/Streak'
         '401':
           description: Unauthorized
-  /emotions:
+  /emotion-analysis:
     get:
       summary: Get all user emotions
       security:
@@ -428,7 +518,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Emotion'
+                  $ref: '#/components/schemas/GroupedEmotionAnalysis'
         '401':
           description: Unauthorized
   /stats:
@@ -470,11 +560,22 @@ components:
           type: string
         content:
           type: string
+        datetime:
+          type: string
+          format: date-time
+        starred:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - PUBLISHED
+            - ANALYZED
         tags:
           type: array
           items:
-            $ref: '#/components/schemas/Tag'
-        emotions:
+            type: string
+        emotionAnalysis:
           type: array
           items:
             type: object
@@ -497,16 +598,33 @@ components:
           type: string
         userId:
           type: integer
-    Emotion:
+    EmotionAnalysis:
       type: object
       properties:
-        class:
+        emotion:
           type: string
         confidence:
           type: number
         analyzedAt:
           type: string
           format: date-time
+    GroupedEmotionAnalysis:
+      type: array
+      items:
+        type: object
+        properties:
+          journalId:
+            type: integer
+          journalDatetime:
+            type: string
+            format: date-time
+          emotionAnalysis:
+            type: array
+            items:
+              $ref: '#/components/schemas/EmotionAnalysis'
+          analyzedAt:
+            type: string
+            format: date-time
     Achievement:
       type: object
       properties:
@@ -549,20 +667,20 @@ components:
     Stats:
       type: object
       properties:
-        journalsCount:
+        journalCount:
           type: integer
         currentStreak:
           $ref: '#/components/schemas/Streak'
         currentLevel:
           $ref: '#/components/schemas/Level'
-        achievementsCount:
+        achievementCount:
           type: object
           properties:
             completed:
               type: integer
             total:
               type: integer
-        emotionsCount:
+        emotionCount:
           type: object
           properties:
             happy:

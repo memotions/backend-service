@@ -13,8 +13,10 @@ export const JournalFeedbackSchema = createSelectSchema(journalFeedbacks).omit({
 
 export const JournalSchema = SelectJournalSchema.extend({
   tags: z.array(z.string()).nullable(),
-  emotionAnalysis: z.array(EmotionAnalysisSchema).nullable(),
-  feedback: JournalFeedbackSchema.nullable(),
+  emotionAnalysis: z
+    .array(EmotionAnalysisSchema.pick({ emotion: true, confidence: true }))
+    .nullable(),
+  feedback: z.string().nullable(),
 }).omit({
   userId: true,
 });

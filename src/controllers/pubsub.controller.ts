@@ -1,46 +1,59 @@
 import { Request, Response, NextFunction } from 'express';
-import { PubSubEvent, PubSubEventSchema } from '../types/pubsubs.types';
-import { DefaultSuccessResponse } from '../types/response.types';
-import EmotionsService from '../services/emotions.service';
+import { eq } from 'drizzle-orm';
+import { DataEventSchema, RawEventSchema } from '../types/pubsubs.types';
+import EmotionAnalysisService from '../services/emotionsAnalysis.service';
 import JournalsService from '../services/journals.service';
 import AchievementsService from '../services/achievements.service';
 import Logger from '../utils/logger';
+import db from '../db';
+import { journals } from '../db/schema/journals.schema';
 
 export default class PubSubController {
-  public static async processJournalEvent(
+  public static async processOnJournalPublished(
     req: Request,
     res: Response,
     next: NextFunction,
   ) {
     try {
-      const eventMessage = PubSubEventSchema.parse(req.body);
+      const raw = RawEventSchema.parse(req.body);
+      const data = DataEventSchema.parse(raw.message.data);
 
-      await EmotionsService.addEmotionAnalysis(
-        eventMessage.journalId,
-        eventMessage.emotionAnalysis.map(entry => ({
+      const check = await JournalsService.findJournalById(
+        data.userId,
+        data.journalId,
+      );
+
+      if (check.status === 'ANALYZED') {
+        res.status(200).end();
+        return;
+      }
+
+      await EmotionAnalysisService.addEmotionAnalysis(
+        data.journalId,
+        data.emotionAnalysis.map(entry => ({
           emotion: entry.emotion,
           confidence: entry.confidence,
-          analyzedAt: new Date(eventMessage.analyzedAt),
+          analyzedAt: new Date(data.analyzedAt),
         })),
       );
 
-      await JournalsService.addJournalFeedback(eventMessage.journalId, {
-        feedback: eventMessage.feedback,
-        createdAt: new Date(eventMessage.createdAt),
+      await JournalsService.addJournalFeedback(data.journalId, {
+        feedback: data.feedback,
+        createdAt: new Date(data.createdAt),
       });
 
-      AchievementsService.processOnJournalAnalyzed(eventMessage.userId)
+      await db
+        .update(journals)
+        .set({ status: 'ANALYZED' })
+        .where(eq(journals.id, data.journalId));
+
+      AchievementsService.processOnJournalAnalyzed(data.userId)
         .then(() => {
           Logger.info('Journal analyzed achievements processed');
         })
         .catch(error => Logger.error(error));
 
-      const response: DefaultSuccessResponse<PubSubEvent> = {
-        status: 'success',
-        data: eventMessage,
-        errors: null,
-      };
-      res.status(201).json(response);
+      res.status(200).end();
     } catch (error) {
       next(error);
     }

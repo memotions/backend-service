@@ -28,7 +28,6 @@ import AppError from '../utils/appError';
 import { emotionAnalysis } from '../db/schema/emotions.schema';
 import { Tag } from '../types/tags.types';
 import TagsService from './tags.service';
-import Logger from '../utils/logger';
 
 export default class JournalsService {
   public static async addJournal(
@@ -86,7 +85,7 @@ export default class JournalsService {
 
   public static async findJournals(
     userId: number,
-    query?: QueryJournal,
+    queryParams?: QueryJournal,
   ): Promise<Journal[]> {
     const conditions: SQL[] = [
       eq(journals.userId, userId),
@@ -99,36 +98,37 @@ export default class JournalsService {
       }
     };
 
-    if (query?.id) addCondition(eq(journals.id, query?.id as number));
+    if (queryParams?.id)
+      addCondition(eq(journals.id, queryParams?.id as number));
 
-    if (query?.search) {
+    if (queryParams?.search) {
       addCondition(
         or(
-          ilike(journals.title, `%${query?.search}%`),
-          ilike(journals.content, `%${query?.search}%`),
+          ilike(journals.title, `%${queryParams?.search}%`),
+          ilike(journals.content, `%${queryParams?.search}%`),
         ),
       );
     }
 
     let dateCondition: SQL | undefined;
-    if (query?.datetime) {
-      dateCondition = eq(journals.datetime, query?.datetime as Date);
-    } else if (query?.startDate && query?.endDate) {
+    if (queryParams?.datetime) {
+      dateCondition = eq(journals.datetime, queryParams?.datetime as Date);
+    } else if (queryParams?.startDate && queryParams?.endDate) {
       dateCondition = between(
         journals.datetime,
-        query?.startDate as Date,
-        query?.endDate as Date,
+        queryParams?.startDate as Date,
+        queryParams?.endDate as Date,
       );
-    } else if (query?.startDate) {
-      dateCondition = gte(journals.datetime, query?.startDate as Date);
-    } else if (query?.endDate) {
-      dateCondition = lte(journals.datetime, query?.endDate as Date);
+    } else if (queryParams?.startDate) {
+      dateCondition = gte(journals.datetime, queryParams?.startDate as Date);
+    } else if (queryParams?.endDate) {
+      dateCondition = lte(journals.datetime, queryParams?.endDate as Date);
     }
     addCondition(dateCondition);
 
     let tagCondition: SQL | undefined;
-    if (query?.tags && query?.tags.length > 0) {
-      const searchTags = query?.tags as number[];
+    if (queryParams?.tags && queryParams?.tags.length > 0) {
+      const searchTags = queryParams?.tags as number[];
       const tagSubquery = db
         .select({ journalId: journalTags.journalId })
         .from(journalTags)
@@ -141,8 +141,8 @@ export default class JournalsService {
     addCondition(tagCondition);
 
     let emotionCondition: SQL | undefined;
-    if (query?.emotions && query?.emotions.length > 0) {
-      const searchEmotions = query?.emotions as string[];
+    if (queryParams?.emotions && queryParams?.emotions.length > 0) {
+      const searchEmotions = queryParams?.emotions as string[];
       const emotionSubquery = db
         .select({ journalId: emotionAnalysis.journalId })
         .from(emotionAnalysis)
@@ -154,10 +154,10 @@ export default class JournalsService {
     }
     addCondition(emotionCondition);
 
-    const raw = await db.query!.journals.findMany({
+    const raw = await db.query.journals.findMany({
       where: and(...conditions),
       orderBy: [desc(journals.datetime), desc(journals.id)],
-      limit: query?.limit as number,
+      limit: queryParams?.limit as number,
       columns: {
         userId: false,
       },
@@ -175,9 +175,6 @@ export default class JournalsService {
           columns: {
             journalId: false,
           },
-          with: {
-            emotion: true,
-          },
         },
         feedback: {
           columns: {
@@ -191,11 +188,26 @@ export default class JournalsService {
     const allJournals: Journal[] = raw.map(journal => ({
       ...journal,
       tags: journal.tags.map(tag => tag.tag.name),
+      emotionAnalysis: journal.emotionAnalysis
+        .map(e => ({
+          emotion: e.emotion,
+          confidence: e.confidence,
+        }))
+        .sort((a, b) => b.confidence - a.confidence),
+      feedback: journal.feedback ? journal.feedback.feedback : null,
     }));
 
     return allJournals;
   }
 
+  /** ***********  ✨ Codeium Command ⭐  ************ */
+  /**
+   * Find a journal by ID.
+   *
+   * @throws {AppError} if journal is not found
+   * @returns {Promise<Journal>} the journal
+   */
+  /** ****  c1cda278-6a65-4a64-ab78-333da578757e  ****** */
   public static async findJournalById(
     userId: number,
     journalId: number,
@@ -220,7 +232,6 @@ export default class JournalsService {
     const existingJournal = await this.findJournalById(userId, journalId);
 
     const { tags: tagNames, ...journalData } = journal;
-    Logger.debug(journalData);
 
     const tagIds: number[] = [];
     if (tagNames) {
@@ -313,7 +324,7 @@ export default class JournalsService {
     userId: number,
     journalId: number,
   ): Promise<string[]> {
-    const raw = await db.query?.journalTags.findMany({
+    const raw = await db.query.journalTags.findMany({
       where: and(eq(journalTags.journalId, journalId), eq(tags.userId, userId)),
       with: {
         tag: true,
@@ -339,7 +350,7 @@ export default class JournalsService {
     journalId: number,
     tagId: number,
   ): Promise<Tag> {
-    const journal = await db.query?.journals.findFirst({
+    const journal = await db.query.journals.findFirst({
       where: and(eq(journals.id, journalId), eq(journals.userId, userId)),
     });
 
@@ -347,7 +358,7 @@ export default class JournalsService {
       throw new AppError('JOURNAL_NOT_FOUND', 404, 'Journal not found');
     }
 
-    const tag = await db.query?.tags.findFirst({
+    const tag = await db.query.tags.findFirst({
       where: eq(tags.id, tagId),
     });
 
@@ -355,7 +366,7 @@ export default class JournalsService {
       throw new AppError('TAG_NOT_FOUND', 404, 'Tag not found');
     }
 
-    const existingJournalTag = await db.query?.journalTags.findFirst({
+    const existingJournalTag = await db.query.journalTags.findFirst({
       where: and(
         eq(journalTags.journalId, journalId),
         eq(journalTags.tagId, tagId),

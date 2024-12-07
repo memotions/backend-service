@@ -3,6 +3,6 @@ import PubsubController from '../controllers/pubsub.controller';
 
 const router = Router();
 
-router.post('/', PubsubController.processJournalEvent);
+router.post('/', PubsubController.processOnJournalPublished);
 
 export default router;

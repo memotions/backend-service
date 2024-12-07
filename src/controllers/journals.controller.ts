@@ -23,7 +23,6 @@ export default class JournalsController {
     try {
       const { id: userId } = req.user as User;
       const journal = AddJournalSchema.parse(req.body);
-      Logger.debug({ journal });
 
       const newJournal = await JournalsService.addJournal(userId, journal);
 
@@ -34,6 +33,8 @@ export default class JournalsController {
       GameService.addPoints(userId, {
         points: 10,
         type: 'JOURNAL_ENTRY',
+      }).then(() => {
+        Logger.info('Added journal entry points');
       });
 
       if (newJournal.status === 'PUBLISHED') {

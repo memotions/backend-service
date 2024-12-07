@@ -18,6 +18,7 @@ import {
   userAchievements,
 } from '../db/schema/achievements.schema';
 import AppError from '../utils/appError';
+import EmotionAnalysisService from './emotionsAnalysis.service';
 
 export default class GameService {
   public static async addPoints(
@@ -247,21 +248,16 @@ export default class GameService {
   public static async getStats(userId: number): Promise<Stats> {
     const currentLevel = await this.getCurrentLevel(userId);
     const currentStreak = await this.getCurrentStreak(userId);
-    const journalsCount = await JournalsService.getJournalsCount(userId);
-    const achievementsCount = await this.getAchivementsCount(userId);
+    const journalCount = await JournalsService.getJournalsCount(userId);
+    const achievementCount = await this.getAchivementsCount(userId);
+    const emotionCount = await EmotionAnalysisService.getEmotionsCount(userId);
 
     return {
       currentLevel,
       currentStreak,
-      journalsCount,
-      achievementsCount,
-      emotions: {
-        happy: 0,
-        sad: 0,
-        neutral: 0,
-        anger: 0,
-        scared: 0,
-      },
+      journalCount,
+      achievementCount,
+      emotionCount,
     };
   }
 }
