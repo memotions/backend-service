@@ -353,7 +353,7 @@ paths:
           description: Unauthorized
         '404':
           description: Journal not found
-  /journals/{journalId}/tags/{tagId}:
+  /journals/{journalId}/tags/{tagName}:
     patch:
       summary: Add or remove a tag from a journal
       security:
@@ -364,11 +364,11 @@ paths:
           required: true
           schema:
             type: integer
-        - name: tagId
+        - name: tagName
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '204':
           description: Tag added/removed from journal successfully
@@ -596,8 +596,6 @@ components:
           type: integer
         name:
           type: string
-        userId:
-          type: integer
     EmotionAnalysis:
       type: object
       properties:

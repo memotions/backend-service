@@ -10,6 +10,6 @@ router.patch('/:journalId', JournalsController.updateJournalById);
 router.delete('/:journalId', JournalsController.deleteJournalById);
 router.patch('/:journalId/star', JournalsController.toggleStarJournal);
 router.get('/:journalId/tags', JournalsController.findJournalTags);
-router.patch('/:journalId/tags/:tagId', JournalsController.toggleJournalTag);
+router.patch('/:journalId/tags/:tagName', JournalsController.toggleJournalTag);
 
 export default router;

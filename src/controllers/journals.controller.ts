@@ -203,7 +203,7 @@ export default class JournalsController {
         journalId,
       );
 
-      const response: DefaultSuccessResponse<string[]> = {
+      const response: DefaultSuccessResponse<Tag[]> = {
         status: 'success',
         data: journalTags,
         errors: null,
@@ -222,20 +222,11 @@ export default class JournalsController {
     try {
       const { id: userId } = req.user as User;
       const journalId = Number(req.params.journalId);
-      const tagId = Number(req.params.tagId);
+      const { tagName } = req.params;
 
-      const journalTag = await JournalsService.toggleJournalTag(
-        userId,
-        journalId,
-        tagId,
-      );
+      await JournalsService.toggleJournalTag(userId, journalId, tagName);
 
-      const response: DefaultSuccessResponse<Tag> = {
-        status: 'success',
-        data: journalTag,
-        errors: null,
-      };
-      res.status(200).json(response);
+      res.status(204).end();
     } catch (error) {
       next(error);
     }
