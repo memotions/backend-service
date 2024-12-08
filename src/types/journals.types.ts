@@ -63,30 +63,71 @@ export const QueryJournalSchema = z.object({
   tags: z
     .string()
     .optional()
-    .transform(val =>
-      val
-        ?.split(',')
-        .map(id => parseInt(id.trim(), 10))
-        .filter(id => !Number.isNaN(id)),
-    )
+    .transform(val => val?.split(','))
     .refine(val => !val || new Set(val).size === val.length, {
       message: 'Tags must be unique',
     }),
+  createdAt: z
+    .string()
+    .datetime()
+    .optional()
+    .transform(val => {
+      if (!val) return undefined;
+
+      if (val.includes('T')) {
+        return new Date(val);
+      }
+
+      const dateOnly = new Date(val);
+      dateOnly.setHours(0, 0, 0, 0);
+      return dateOnly;
+    })
+    .or(z.string().includes('today')),
   datetime: z
     .string()
     .datetime()
     .optional()
-    .transform(val => (val ? new Date(val) : undefined)),
-  endDate: z
-    .string()
-    .date()
-    .optional()
-    .transform(val => (val ? new Date(val) : undefined)),
+    .transform(val => {
+      if (!val) return undefined;
+
+      if (val.includes('T')) {
+        return new Date(val);
+      }
+
+      const dateOnly = new Date(val);
+      dateOnly.setHours(0, 0, 0, 0);
+      return dateOnly;
+    }),
   startDate: z
     .string()
     .date()
     .optional()
-    .transform(val => (val ? new Date(val) : undefined)),
+    .transform(val => {
+      if (!val) return undefined;
+
+      if (val.includes('T')) {
+        return new Date(val);
+      }
+
+      const dateOnly = new Date(val);
+      dateOnly.setHours(0, 0, 0, 0);
+      return dateOnly;
+    }),
+  endDate: z
+    .string()
+    .date()
+    .optional()
+    .transform(val => {
+      if (!val) return undefined;
+
+      if (val.includes('T')) {
+        return new Date(val);
+      }
+
+      const dateOnly = new Date(val);
+      dateOnly.setHours(23, 59, 59, 999);
+      return dateOnly;
+    }),
   limit: z
     .string()
     .optional()

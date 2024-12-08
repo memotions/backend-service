@@ -112,29 +112,46 @@ export default class JournalsService {
 
     let dateCondition: SQL | undefined;
     if (queryParams?.datetime) {
-      dateCondition = eq(journals.datetime, queryParams?.datetime as Date);
-    } else if (queryParams?.startDate && queryParams?.endDate) {
-      dateCondition = between(
-        journals.datetime,
-        queryParams?.startDate as Date,
-        queryParams?.endDate as Date,
-      );
-    } else if (queryParams?.startDate) {
-      dateCondition = gte(journals.datetime, queryParams?.startDate as Date);
-    } else if (queryParams?.endDate) {
-      dateCondition = lte(journals.datetime, queryParams?.endDate as Date);
+      if (
+        typeof queryParams.datetime === 'string' &&
+        queryParams.datetime === 'today'
+      ) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        dateCondition = between(journals.datetime, today, tomorrow);
+      } else {
+        dateCondition = eq(journals.datetime, queryParams.datetime as Date);
+      }
+    } else {
+      const startDate = queryParams?.startDate;
+      const endDate = queryParams?.endDate;
+
+      if (startDate && endDate) {
+        dateCondition = between(
+          journals.datetime,
+          startDate as Date,
+          endDate as Date,
+        );
+      } else if (startDate) {
+        dateCondition = gte(journals.datetime, startDate as Date);
+      } else if (endDate) {
+        dateCondition = lte(journals.datetime, endDate as Date);
+      }
     }
     addCondition(dateCondition);
 
     let tagCondition: SQL | undefined;
     if (queryParams?.tags && queryParams?.tags.length > 0) {
-      const searchTags = queryParams?.tags as number[];
+      const searchTagNames = queryParams?.tags as string[];
       const tagSubquery = db
         .select({ journalId: journalTags.journalId })
         .from(journalTags)
-        .where(inArray(journalTags.tagId, searchTags))
+        .innerJoin(tags, eq(journalTags.tagId, tags.id))
+        .where(inArray(tags.name, searchTagNames))
         .groupBy(journalTags.journalId)
-        .having(eq(count(journalTags.tagId), searchTags.length));
+        .having(eq(count(journalTags.tagId), searchTagNames.length));
 
       tagCondition = inArray(journals.id, tagSubquery);
     }
