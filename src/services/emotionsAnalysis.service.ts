@@ -76,31 +76,36 @@ export default class EmotionAnalysisService {
 
   public static async getEmotionsCount(userId: number): Promise<EmotionsCount> {
     const emotionAnalyzed = await db
-      .select()
-      .from(emotionAnalysis)
-      .where(eq(emotionAnalysis.journalId, userId));
+      .select({
+        emotion: emotionAnalysis.emotion,
+      })
+      .from(journals)
+      .innerJoin(emotionAnalysis, eq(emotionAnalysis.journalId, journals.id))
+      .where(eq(journals.userId, userId));
 
-    const emotionsCount: EmotionsCount = {
-      happy: 0,
-      sad: 0,
-      neutral: 0,
-      anger: 0,
-      scared: 0,
+    const emotionsMap: Record<string, number> = {
+      HAPPY: 0,
+      SAD: 0,
+      NEUTRAL: 0,
+      ANGER: 0,
+      SCARED: 0,
     };
 
-    emotionAnalyzed.forEach(emotion => {
-      if (emotion.emotion === 'HAPPY') {
-        emotionsCount.happy += 1;
-      } else if (emotion.emotion === 'SAD') {
-        emotionsCount.sad += 1;
-      } else if (emotion.emotion === 'NEUTRAL') {
-        emotionsCount.neutral += 1;
-      } else if (emotion.emotion === 'ANGER') {
-        emotionsCount.anger += 1;
-      } else if (emotion.emotion === 'SCARED') {
-        emotionsCount.scared += 1;
-      }
-    });
+    const emotionsCount = emotionAnalyzed.reduce(
+      (acc, { emotion }) => {
+        if (emotion in emotionsMap) {
+          acc[emotion.toLowerCase() as keyof EmotionsCount] += 1;
+        }
+        return acc;
+      },
+      {
+        happy: 0,
+        sad: 0,
+        neutral: 0,
+        anger: 0,
+        scared: 0,
+      },
+    ) as EmotionsCount;
 
     return emotionsCount;
   }
