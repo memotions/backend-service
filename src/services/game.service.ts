@@ -206,7 +206,8 @@ export default class GameService {
 
     return allAchievements.map(item => ({
       ...item.achievements,
-      completed: item.user_achievements !== null,
+      completed:
+        item.user_achievements !== null || item.achievements.tier === 0,
     }));
   }
 

@@ -37,23 +37,22 @@ async function main(): Promise<void> {
   Logger.info('Seeding database...');
 
   try {
-    await db
-      .insert(emotionClasses)
-      .values(defaultEmotions.map(emotion => ({ emotion })))
-      .onConflictDoNothing();
-    await db
-      .insert(achievementTypes)
-      .values(defaultAchievementTypes.map(type => ({ type })))
-      .onConflictDoNothing();
-    await db
-      .insert(streakCategories)
-      .values(defaultStreakCategories.map(category => ({ category })))
-      .onConflictDoNothing();
-    await db
-      .insert(achievements)
-      .values(defaultAchievements)
-      .onConflictDoNothing();
-    await db.insert(levels).values(defaultLevels).onConflictDoNothing();
+    await Promise.all([
+      db
+        .insert(emotionClasses)
+        .values(defaultEmotions.map(emotion => ({ emotion })))
+        .onConflictDoNothing(),
+      db
+        .insert(achievementTypes)
+        .values(defaultAchievementTypes.map(type => ({ type })))
+        .onConflictDoNothing(),
+      db
+        .insert(streakCategories)
+        .values(defaultStreakCategories.map(category => ({ category })))
+        .onConflictDoNothing(),
+      db.insert(achievements).values(defaultAchievements).onConflictDoNothing(),
+      db.insert(levels).values(defaultLevels).onConflictDoNothing(),
+    ]);
 
     Logger.info('Seeding database completed.');
   } catch (error) {
