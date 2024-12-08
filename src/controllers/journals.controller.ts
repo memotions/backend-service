@@ -26,16 +26,20 @@ export default class JournalsController {
 
       const newJournal = await JournalsService.addJournal(userId, journal);
 
-      GameService.updateStreak(userId, 'JOURNAL_STREAK').then(() => {
-        Logger.info('Updated journal streak');
-      });
+      GameService.updateStreak(userId, 'JOURNAL_STREAK')
+        .then(() => {
+          Logger.info('Updated journal streak');
+        })
+        .catch(error => Logger.error(error));
 
       GameService.addPoints(userId, {
         points: 10,
         type: 'JOURNAL_ENTRY',
-      }).then(() => {
-        Logger.info('Added journal entry points');
-      });
+      })
+        .then(() => {
+          Logger.info('Added journal entry points');
+        })
+        .catch(error => Logger.error(error));
 
       if (newJournal.status === 'PUBLISHED') {
         const pubsub = new PubSubHandler();

@@ -110,7 +110,11 @@ export default class GameService {
       );
 
     if (!currentStreak) {
-      throw new AppError('STREAK_NOT_FOUND', 404, 'Streak not found');
+      return {
+        startDate: new Date(),
+        endDate: new Date(),
+        streakLength: 0,
+      };
     }
 
     const startDate = new Date(currentStreak.startDate);

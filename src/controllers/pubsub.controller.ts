@@ -8,13 +8,23 @@ import Logger from '../utils/logger';
 import db from '../db';
 import { journals } from '../db/schema/journals.schema';
 import { AddEmotionAnalysis } from '../types/emotions.types';
+import GameService from '../services/game.service';
 
 export default class PubSubController {
   private static async processEmotionAnalysis(
+    userId: number,
     journalId: number,
     analyzedAt: string,
     emotionAnalysis: AddEmotionAnalysis[],
   ) {
+    if (
+      emotionAnalysis.filter(
+        entry => entry.emotion === 'HAPPY' && entry.confidence > 0.5,
+      ).length > 0
+    ) {
+      await GameService.updateStreak(userId, 'POSITIVE_STREAK');
+    }
+
     return EmotionAnalysisService.addEmotionAnalysis(
       journalId,
       emotionAnalysis.map(entry => ({
@@ -22,7 +32,11 @@ export default class PubSubController {
         confidence: entry.confidence,
         analyzedAt: new Date(analyzedAt),
       })),
-    );
+    )
+      .then(() => {
+        Logger.info(`Emotion analysis processed for journal ${journalId}`);
+      })
+      .catch(error => Logger.error(error));
   }
 
   private static async processFeedback(
@@ -33,26 +47,30 @@ export default class PubSubController {
     return JournalsService.addJournalFeedback(journalId, {
       feedback,
       createdAt: new Date(createdAt),
-    });
+    })
+      .then(() => {
+        Logger.info(`Journal feedback processed for journal ${journalId}`);
+      })
+      .catch(error => Logger.error(error));
   }
 
   private static async processJournalStatus(journalId: number) {
     return db
       .update(journals)
       .set({ status: 'ANALYZED' })
-      .where(eq(journals.id, journalId));
+      .where(eq(journals.id, journalId))
+      .then(() => {
+        Logger.info(`Journal status processed for journal ${journalId}`);
+      })
+      .catch(error => Logger.error(error));
   }
 
   private static async processAchievements(userId: number) {
     return AchievementsService.processOnJournalAnalyzed(userId)
       .then(() => {
-        Logger.info(
-          `Journal analyzed achievements processed for user ${userId}`,
-        );
+        Logger.info(`Achievements processed for user ${userId}`);
       })
-      .catch(error => {
-        Logger.error(`Achievement processing error for user ${userId}:`, error);
-      });
+      .catch(error => Logger.error(error));
   }
 
   public static async processOnJournalPublished(req: Request, res: Response) {
@@ -66,33 +84,27 @@ export default class PubSubController {
       );
 
       if (check.status === 'ANALYZED') {
+        Logger.info(`Journal ${data.journalId} already analyzed`);
         res.status(200).end();
         return;
       }
-
-      if (check.status === 'PUBLISHED') {
-        await Promise.all([
-          this.processEmotionAnalysis(
-            data.journalId,
-            data.analyzedAt,
-            data.emotionAnalysis,
-          ).catch(error => Logger.error(error)),
-          this.processFeedback(
-            data.journalId,
-            data.feedback,
-            data.createdAt,
-          ).catch(error => Logger.error(error)),
-          this.processJournalStatus(data.journalId).catch(error =>
-            Logger.error(error),
-          ),
-        ]);
-
-        this.processAchievements(data.userId);
-      }
+      PubSubController.processEmotionAnalysis(
+        data.userId,
+        data.journalId,
+        data.analyzedAt,
+        data.emotionAnalysis,
+      );
+      PubSubController.processFeedback(
+        data.journalId,
+        data.feedback,
+        data.createdAt,
+      );
+      PubSubController.processJournalStatus(data.journalId);
+      PubSubController.processAchievements(data.userId);
 
       res.status(200).end();
     } catch (error) {
-      Logger.error(`[Pub\\Sub] ${error}`);
+      Logger.error(`[Pub/Sub] ${error}`);
       res.status(200).end();
     }
   }
