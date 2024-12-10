@@ -1,141 +1,154 @@
-@startuml Memotions ERD
+@startuml Memotions ER Diagram
 
-entity User {
-    * user_id : INT <<PK>>
-    --
-    * name : STRING
-    * username : STRING
-    * email : STRING
-    * password : STRING
-    * created_at : TIMESTAMP
+enum JournalStatus {
+  ANALYZED
+  PUBLISHED
+  DRAFT
 }
 
-entity Journal {
-    * journal_id : INT <<PK>>
-    --
-    * title : STRING
-    * content : TEXT
-    * date : DATE
-    * starred : BOOLEAN
-    * created_at : TIMESTAMP
-    --
-    * user_id : INT <<FK>>
+enum TransactionType {
+  POSITIVE_EMOTION
+  ACHIEVEMENT_BONUS
+  STREAK_BONUS
+  JOURNAL_ENTRY
 }
 
-entity Tag {
-    * tag_id : INT <<PK>>   
-    --
-    * name : STRING
-    * created_at : TIMESTAMP
-    --
-    * user_id : INT <<FK>>
+entity AchievementTypes {
+    * type : VARCHAR <<PK>>
 }
 
-entity JournalTag {
-    * journal_id : INT <<PK, FK>>
-    * tag_id : INT <<PK, FK>>
+entity Achievements {
+    * id : INTEGER <<PK>>
+    --
+    code : VARCHAR
+    name : VARCHAR
+    icon_url : VARCHAR
+    type : VARCHAR
+    criteria : INTEGER
+    description : VARCHAR
+    tier : INTEGER
+    points_awarded : INTEGER
 }
 
-entity EmotionClass {
-    * emotion_class_id : INT <<PK>>
+entity EmotionAnalysis {
+    * id : INTEGER <<PK>>
     --
-    * name : STRING
+    journal_id : INTEGER
+    emotion : VARCHAR
+    confidence : REAL
+    analyzed_at : TIMESTAMP
 }
 
-entity JournalEmotion {
-    * journal_id : INT <<PK, FK>>
-    * emotion_class_id : INT <<PK, FK>>
-    --
-    * confidence : FLOAT
-    * created_at : TIMESTAMP
+entity EmotionClasses {
+    * emotion : VARCHAR <<PK>>
 }
 
-entity JournalFeedback {
-    * feedback_id : INT <<PK>>
+entity JournalFeedbacks {
+    * id : INTEGER <<PK>>
     --
-    * content : STRING
-    * created_at : TIMESTAMP
-    --
-    * journal_id : INT <<FK>>
+    journal_id : INTEGER
+    feedback : TEXT
+    created_at : TIMESTAMP
 }
 
-entity Achievement {
-    * achievement_id : INT <<PK>>
-    --
-    * name : STRING
-    * description : STRING
-    * tier : AchievementTier
-    * points_awarded : INT 
+entity JournalTags {
+    * journal_id : INTEGER <<PK>>
+    * tag_id : INTEGER <<PK>>
 }
 
-enum AchievementTier {
-    BRONZE
-    SILVER
-    GOLD
-    SPECIAL
+entity Journals {
+    * id : INTEGER <<PK>>
+    --
+    user_id : INTEGER
+    title : VARCHAR
+    content : VARCHAR
+    datetime : TIMESTAMP
+    starred : BOOLEAN
+    deleted : BOOLEAN
+    status : JournalStatus
+    created_at : TIMESTAMP
 }
 
-entity UserAchievement {
-    * user_id : INT <<PK, FK>>
-    * achievement_id : INT <<PK, FK>>
+entity Levels {
+    * level_number : INTEGER <<PK>>
     --
-    * created_at : TIMESTAMP
+    points_required : INTEGER
 }
 
-entity UserStreak {
-    * streak_id : INT <<PK>>
+entity PointTransactions {
+    * id : INTEGER <<PK>>
     --
-    * start_date : DATE
-    * end_date : DATE
-    * updated_at : TIMESTAMP
-    --
-    * user_id : INT <<FK>>
+    user_id : INTEGER
+    type : TransactionType
+    points : INTEGER
+    created_at : TIMESTAMP
 }
 
-entity PointTransaction {
-    * transaction_id : INT <<PK>>
-    --
-    * points : INT
-    * transaction_type: PointTransactionType
-    * created_at : TIMESTAMP
-    --
-    * user_id : INT <<FK>>
+entity StreakCategories {
+    * category : VARCHAR <<PK>>
 }
 
-enum PointTransactionType {
-    JOURNAL_ENTRY
-    STREAK_BONUS
-    ACHIEVEMENT_COMPLETION
-}
-
-entity Level {
-    * level_id : INT <<PK>>
+entity Streaks {
+    * id : INTEGER <<PK>>
     --
-    * level_number : INT
-    * points_required : INT
+    user_id : INTEGER
+    category : VARCHAR
+    start_date : DATE
+    end_date : DATE
 }
 
-entity UserLevel {
-    * user_id : INT <<PK, FK>>
-    * level_id : INT <<PK, FK>>
+entity Tags {
+    * id : INTEGER <<PK>>
     --
-    * created_at : TIMESTAMP
+    name : VARCHAR
+    user_id : INTEGER
 }
 
-User ||--o{ Journal : writes
-User ||--o{ Tag : creates
-Journal ||--o{ JournalTag : tagged_with
-Tag ||--o{ JournalTag : used_by
-Journal ||--o{ JournalEmotion : has_emotions
-EmotionClass ||--o{ JournalEmotion : classified_as
-Journal ||--o{ JournalFeedback : receives
-User ||--o{ UserAchievement : earns
-Achievement ||--o{ UserAchievement : associated_with
-AchievementTier ||--o{ Achievement : has_tier
-User ||--o{ UserStreak : maintains
-User ||--o{ PointTransaction : has_transactions
-PointTransactionType ||--o{ PointTransaction : has_type
-Level ||--o{ UserLevel : required_for
-User ||--o{ UserLevel : reaches
+entity UserAchievements {
+    * user_id : INTEGER <<PK>>
+    * achievement_id : INTEGER <<PK>>
+    --
+    completed_at : TIMESTAMP
+}
+
+entity UserLevels {
+    * user_id : INTEGER <<PK>>
+    * level_id : INTEGER <<PK>>
+}
+
+entity Users {
+    * id : INTEGER <<PK>>
+    --
+    name : VARCHAR
+    email : VARCHAR
+    password : VARCHAR
+    fcm_token : VARCHAR
+}
+
+AchievementTypes ||--o{ Achievements
+Achievements ||--o{ UserAchievements
+Achievements ||--o{ EmotionAnalysis
+
+EmotionClasses ||--o{ EmotionAnalysis
+
+Journals ||--o{ JournalFeedbacks
+Journals ||--o{ JournalTags
+Journals ||--o{ EmotionAnalysis
+
+Tags ||--o{ JournalTags
+
+Users ||--o{ Journals
+Users ||--o{ Tags
+Users ||--o{ PointTransactions
+Users ||--o{ Streaks
+Users ||--o{ UserAchievements
+Users ||--o{ UserLevels
+
+Levels ||--o{ UserLevels
+
+StreakCategories ||--o{ Streaks
+
+JournalStatus ||--o{ Journals
+TransactionType ||--o{ PointTransactions
 
 @enduml
