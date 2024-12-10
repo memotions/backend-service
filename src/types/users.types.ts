@@ -10,11 +10,13 @@ export const RegisterUserSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   password: z.string().min(6),
+  fcmToken: z.string().nullable().optional(),
 });
 
 export const LoginUserSchema = z.object({
   email: z.string().email(),
   password: z.string(),
+  fcmToken: z.string().nullable().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;

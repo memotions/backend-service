@@ -9,6 +9,7 @@ import db from '../db';
 import { journals } from '../db/schema/journals.schema';
 import { AddEmotionAnalysis } from '../types/emotions.types';
 import GameService from '../services/game.service';
+import { NotificationService } from '../services/notification.service';
 
 export default class PubSubController {
   private static async processEmotionAnalysis(
@@ -100,6 +101,22 @@ export default class PubSubController {
         data.createdAt,
       );
       PubSubController.processJournalStatus(data.journalId);
+
+      const notificationService = new NotificationService();
+      const emotionClasses = {
+        HAPPY: 'senang',
+        SAD: 'sedih',
+        ANGER: 'marah',
+        SCARED: 'takut',
+        NEUTRAL: 'netral',
+      };
+      await notificationService.sendToUser(data.userId, {
+        title: 'Jurnal Selesai Dianalisis',
+        body: `Hai, Memothians! kamu sedang ${
+          emotionClasses[data.emotionAnalysis[0].emotion]
+        }`,
+      });
+
       PubSubController.processAchievements(data.userId);
 
       res.status(200).end();

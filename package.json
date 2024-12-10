@@ -26,6 +26,7 @@
     "drizzle-orm": "^0.36.4",
     "drizzle-zod": "^0.5.1",
     "express": "^4.21.1",
+    "firebase-admin": "^13.0.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
