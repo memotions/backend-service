@@ -4,14 +4,14 @@ on:
   pull_request:
     branches: [main]
 
-jobs: 
+jobs:
   prod:
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/production.yaml
-    permissions: 
+    permissions:
       id-token: write
       contents: read
-    with: 
+    with:
       environment: production
       ref: ${{ github.sha }}
     secrets: inherit
