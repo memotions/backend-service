@@ -1,0 +1,27 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    if: ${{ github.ref == 'refs/heads/backend' || github.base_ref == 'backend' }}
+    uses: ./.github/workflows/production.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: production
+      ref: ${{ github.sha }}
+    secrets: inherit
+  prod:
+    if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
+    uses: ./.github/workflows/production.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: production
+      ref: ${{ github.sha }}
+    secrets: inherit
