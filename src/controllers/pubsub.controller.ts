@@ -94,7 +94,7 @@ export default class PubSubController {
       .then(() => {
         Logger.info(`Journal status processed for journal ${journalId}`);
       })
-      .catch(error => Logger.error(error));
+      .catch(error => Logger.error(`[Status] ${error}`));
   }
 
   private static async processAchievements(userId: number) {

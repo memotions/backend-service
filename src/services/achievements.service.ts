@@ -16,7 +16,7 @@ export default class AchievementsService {
     achievementId: number,
     pointsAwarded: number,
   ): Promise<Achievement> {
-    await db
+    const newUserAchievement = await db
       .insert(userAchievements)
       .values({ userId, achievementId })
       .onConflictDoNothing()
@@ -33,15 +33,19 @@ export default class AchievementsService {
       type: 'ACHIEVEMENT_BONUS',
     });
 
-    const notificationService = new NotificationService();
-    await notificationService.sendToUser(userId, {
-      title: 'Pencapaian Baru!',
-      body: `Hai, Memothians! kamu telah menyelesaikan ${newAchievement.name} ${
-        newAchievement.code === 'menjadi-memothians'
-          ? ''
-          : 'I'.repeat(newAchievement.tier)
-      }`,
-    });
+    if (newUserAchievement.length > 0) {
+      const notificationService = new NotificationService();
+      await notificationService.sendToUser(userId, {
+        title: 'Pencapaian Baru!',
+        body: `Hai, Memothians! kamu telah menyelesaikan ${
+          newAchievement.name
+        } ${
+          newAchievement.code === 'menjadi-memothians'
+            ? ''
+            : 'I'.repeat(newAchievement.tier)
+        }`,
+      });
+    }
 
     return { ...newAchievement, completed: true };
   }

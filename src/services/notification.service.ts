@@ -62,7 +62,9 @@ export class NotificationService {
       }
 
       const response = await this.sendToDevice(fcmToken, payload);
-      Logger.info(`Notification sent to user ${userId}`);
+      Logger.info(
+        `Notification sent to user ${userId} { title: ${payload.title}, body: ${payload.body}}`,
+      );
       return response;
     } catch (error) {
       Logger.error(`Error sending notification to user ${userId}`, error);
