@@ -13,9 +13,6 @@ RUN npm install
 # Copy the rest of the project files
 COPY . .
 
-# Copy the Firebase Service Account file to the root of the image
-COPY firebase-service-account.json /app/firebase-service-account.json
-
 # Build the TypeScript application
 RUN npm run build
 
@@ -29,7 +26,6 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
-COPY --from=builder /app/firebase-service-account.json ./firebase-service-account.json
 
 # Install only production dependencies
 RUN npm install --production

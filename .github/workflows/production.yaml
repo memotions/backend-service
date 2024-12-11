@@ -75,12 +75,11 @@ jobs:
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.TOKEN }}
-          approvers: "GungIndi,bayskie"
+          approvers: 'GungIndi,bayskie'
           minimum-approvals: 1
           timeout-minutes: 10
-          issue-title: "Approve Production Deployment"
-          issue-body: "Please review and approve deployment to production"
-
+          issue-title: 'Approve Production Deployment'
+          issue-body: 'Please review and approve deployment to production'
 
   deploy-to-production:
     needs: manual-approval
