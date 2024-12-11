@@ -55,6 +55,10 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
           registry: '${{ vars.PROD_REGION }}-docker.pkg.dev'
 
+      - name: Download Firebase Service Account
+        run: |
+          gsutil cp gs://${{ vars.PROD_FCM_BUCKET }}/${{ vars.PROD_FCM_FILE }} .
+
       - name: Build, tag and push container
         id: build-image
         uses: docker/build-push-action@v3
@@ -104,5 +108,5 @@ jobs:
           --memory=1Gi \
           --min-instances=1 \
           --max-instances=2 \
-          --set-env-vars=ENVIRONMENT=production,DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET}},TOPIC_ID=${{ vars.BACKEND_TOPIC_ID }},FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }} \
+          --set-env-vars=ENVIRONMENT=production,DATABASE_URL=${{ secrets.DATABASE_URL }},JWT_SECRET=${{ secrets.JWT_SECRET}},TOPIC_ID=${{ vars.BACKEND_TOPIC_ID }} \
           && gcloud run services update-traffic ${{ vars.BACKEND_SERVICE_NAME }} --region=${{ vars.PROD_REGION }} --to-latest
