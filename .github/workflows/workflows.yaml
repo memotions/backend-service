@@ -1,6 +1,8 @@
 on:
   push:
-    branches: [backend, main]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs: 
   backend:

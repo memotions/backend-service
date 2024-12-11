@@ -81,7 +81,7 @@ jobs:
           issue-title: "Approve Production Deployment"
           issue-body: "Please review and approve deployment to production"
 
-  deploy-to-staging:
+  deploy-to-production:
     needs: manual-approval
     runs-on: ubuntu-latest
     steps:
