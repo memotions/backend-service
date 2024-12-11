@@ -17,9 +17,16 @@ export default class AuthController {
     next: NextFunction,
   ) => {
     try {
-      const { name, email, password } = RegisterUserSchema.parse(req.body);
+      const { name, email, password, fcmToken } = RegisterUserSchema.parse(
+        req.body,
+      );
 
-      const newUser = await AuthService.register(email, name, password);
+      const newUser = await AuthService.register(
+        email,
+        name,
+        password,
+        fcmToken,
+      );
 
       AchievementsService.processOnUserRegistered(newUser.user.id)
         .then(() => Logger.info('Registered user achievements processed'))
@@ -42,9 +49,9 @@ export default class AuthController {
     next: NextFunction,
   ) => {
     try {
-      const { email, password } = LoginUserSchema.parse(req.body);
+      const { email, password, fcmToken } = LoginUserSchema.parse(req.body);
 
-      const user = await AuthService.login(email, password);
+      const user = await AuthService.login(email, password, fcmToken);
 
       const response: DefaultSuccessResponse<Auth> = {
         status: 'success',
@@ -53,6 +60,24 @@ export default class AuthController {
       };
       res.status(200).json(response);
     } catch (error) {
+      next(error);
+    }
+  };
+
+  public static logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const { id } = req.user as User;
+      console.log(`Logging out user ${id}`);
+
+      await AuthService.logout(id);
+      console.log('User logged out');
+      res.status(200).end();
+    } catch (error) {
+      console.error(error);
       next(error);
     }
   };

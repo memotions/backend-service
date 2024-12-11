@@ -100,7 +100,16 @@ const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  Logger.error(error.message.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim());
+  Logger.error(
+    `${error.message
+      .replace(/\n/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()} - details: ${
+      error.stack
+        ? error.stack.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+        : 'null'
+    }`,
+  );
 
   if (error instanceof z.ZodError) {
     const errors = zodErrorHandler(error);

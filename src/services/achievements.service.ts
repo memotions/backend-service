@@ -1,4 +1,4 @@
-import { desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray } from 'drizzle-orm';
 import db from '../db';
 import {
   achievements,
@@ -8,6 +8,7 @@ import JournalsService from './journals.service';
 import GameService from './game.service';
 import EmotionAnalysisService from './emotionsAnalysis.service';
 import { Achievement } from '../types/game.types';
+import { NotificationService } from './notification.service';
 
 export default class AchievementsService {
   private static async addUserAchievement(
@@ -30,6 +31,16 @@ export default class AchievementsService {
     await GameService.addPoints(userId, {
       points: pointsAwarded,
       type: 'ACHIEVEMENT_BONUS',
+    });
+
+    const notificationService = new NotificationService();
+    await notificationService.sendToUser(userId, {
+      title: 'Pencapaian Baru!',
+      body: `Hai, Memothians! kamu telah menyelesaikan ${newAchievement.name} ${
+        newAchievement.code === 'menjadi-memothians'
+          ? ''
+          : 'I'.repeat(newAchievement.tier)
+      }`,
     });
 
     return { ...newAchievement, completed: true };
@@ -68,7 +79,9 @@ export default class AchievementsService {
     const journalAchievements = await db
       .select()
       .from(achievements)
-      .where(eq(achievements.type, 'JOURNAL_COUNT'))
+      .where(
+        and(eq(achievements.type, 'JOURNAL_COUNT'), gt(achievements.tier, 0)),
+      )
       .orderBy(desc(achievements.tier));
 
     const journalsCount = await JournalsService.getJournalsCount(userId);
@@ -94,7 +107,9 @@ export default class AchievementsService {
     const streakAchievements = await db
       .select()
       .from(achievements)
-      .where(eq(achievements.type, 'JOURNAL_STREAK'));
+      .where(
+        and(eq(achievements.type, 'JOURNAL_STREAK'), gt(achievements.tier, 0)),
+      );
 
     const currentStreak = await GameService.getCurrentStreak(userId);
 
@@ -121,7 +136,7 @@ export default class AchievementsService {
     const levelAchievements = await db
       .select()
       .from(achievements)
-      .where(eq(achievements.type, 'LEVEL'));
+      .where(and(eq(achievements.type, 'LEVEL'), gt(achievements.tier, 0)));
 
     const currentLevel = await GameService.getCurrentLevel(userId);
 
@@ -149,11 +164,16 @@ export default class AchievementsService {
       .select()
       .from(achievements)
       .where(
-        inArray(achievements.type, [
-          'POSITIVE_COUNT',
-          'RISE_COUNT',
-          'POSITIVE_STREAK',
-        ]),
+        and(
+          eq(
+            inArray(achievements.type, [
+              'POSITIVE_COUNT',
+              'RISE_COUNT',
+              'POSITIVE_STREAK',
+            ]),
+            gt(achievements.tier, 0),
+          ),
+        ),
       );
 
     const [positiveCount, riseCount, positiveStreak] = await Promise.all([

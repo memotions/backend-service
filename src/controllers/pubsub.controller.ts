@@ -9,6 +9,7 @@ import db from '../db';
 import { journals } from '../db/schema/journals.schema';
 import { AddEmotionAnalysis } from '../types/emotions.types';
 import GameService from '../services/game.service';
+import { NotificationService } from '../services/notification.service';
 
 export default class PubSubController {
   private static async processEmotionAnalysis(
@@ -50,6 +51,37 @@ export default class PubSubController {
     })
       .then(() => {
         Logger.info(`Journal feedback processed for journal ${journalId}`);
+      })
+      .catch(error => Logger.error(error));
+  }
+
+  private static async processNotification(
+    userId: number,
+    emotionAnalysis: {
+      emotion: string;
+      confidence: number;
+    }[],
+  ) {
+    const notificationService = new NotificationService();
+
+    const emotionData: Record<string, string> = {
+      HAPPY: 'Lagi happy, ya? Terus semangat! 😊',
+      SAD: 'Hari ini mungkin berat, tapi besok pasti lebih baik! 😢',
+      ANGER: 'Tenang dulu, semuanya bakal oke! 😠',
+      SCARED: 'Takut itu wajar, kamu pasti bisa! 😨',
+      NEUTRAL: 'Hari biasa, nikmatin aja! 😐',
+    };
+
+    const userEmotion = emotionAnalysis?.[0]?.emotion || 'NEUTRAL';
+    const text = emotionData[userEmotion] || emotionData.NEUTRAL;
+
+    return notificationService
+      .sendToUser(userId, {
+        title: 'Analisis Selesai',
+        body: `Hai, Memothians! ${text} Yuk cek saran selengkapnya!`,
+      })
+      .then(() => {
+        Logger.info(`Notification sent to user ${userId}`);
       })
       .catch(error => Logger.error(error));
   }
@@ -100,6 +132,7 @@ export default class PubSubController {
         data.createdAt,
       );
       PubSubController.processJournalStatus(data.journalId);
+      PubSubController.processNotification(data.userId, data.emotionAnalysis);
       PubSubController.processAchievements(data.userId);
 
       res.status(200).end();

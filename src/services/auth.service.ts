@@ -17,6 +17,7 @@ export default class AuthService {
     email: string,
     name: string,
     password: string,
+    fcmToken?: string | null,
   ) => {
     const [user] = await db.select().from(users).where(eq(users.email, email));
 
@@ -32,6 +33,7 @@ export default class AuthService {
         email,
         name,
         password: hashedPassword,
+        fcmToken,
       })
       .returning();
 
@@ -45,8 +47,16 @@ export default class AuthService {
     };
   };
 
-  public static login = async (email: string, password: string) => {
+  public static login = async (
+    email: string,
+    password: string,
+    fcmToken?: string | null,
+  ) => {
     const [user] = await db.select().from(users).where(eq(users.email, email));
+
+    if (fcmToken) {
+      await db.update(users).set({ fcmToken }).where(eq(users.email, email));
+    }
 
     if (!user) {
       throw new AppError('USER_NOT_FOUND', 404, 'User not found');
@@ -66,6 +76,10 @@ export default class AuthService {
       },
       token: this.generateToken(user.id),
     };
+  };
+
+  public static logout = async (userId: number) => {
+    await db.update(users).set({ fcmToken: null }).where(eq(users.id, userId));
   };
 
   public static getProfile = async (userId: number) => {
