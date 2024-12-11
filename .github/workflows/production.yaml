@@ -57,7 +57,7 @@ jobs:
 
       - name: Download Firebase Service Account
         run: |
-          gcloud auth activate-service-account --key-file=${{ secrets.PROD_GOOGLE_CREDENTIALS }}
+          gcloud auth activate-access-token ${{ steps.auth.outputs.access_token }}
           gsutil cp gs://${{ vars.PROD_FCM_BUCKET }}/${{ vars.PROD_FCM_FILE }} .
 
       - name: Build, tag and push container
