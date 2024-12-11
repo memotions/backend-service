@@ -55,6 +55,37 @@ export default class PubSubController {
       .catch(error => Logger.error(error));
   }
 
+  private static async processNotification(
+    userId: number,
+    emotionAnalysis: {
+      emotion: string;
+      confidence: number;
+    }[],
+  ) {
+    const notificationService = new NotificationService();
+
+    const emotionData: Record<string, string> = {
+      HAPPY: 'Lagi happy, ya? Terus semangat! 😊',
+      SAD: 'Hari ini mungkin berat, tapi besok pasti lebih baik! 😢',
+      ANGER: 'Tenang dulu, semuanya bakal oke! 😠',
+      SCARED: 'Takut itu wajar, kamu pasti bisa! 😨',
+      NEUTRAL: 'Hari biasa, nikmatin aja! 😐',
+    };
+
+    const userEmotion = emotionAnalysis?.[0]?.emotion || 'NEUTRAL';
+    const text = emotionData[userEmotion] || emotionData.NEUTRAL;
+
+    return notificationService
+      .sendToUser(userId, {
+        title: 'Analisis Selesai',
+        body: `Hai, Memothians! ${text} Yuk cek saran selengkapnya!`,
+      })
+      .then(() => {
+        Logger.info(`Notification sent to user ${userId}`);
+      })
+      .catch(error => Logger.error(error));
+  }
+
   private static async processJournalStatus(journalId: number) {
     return db
       .update(journals)
@@ -101,22 +132,7 @@ export default class PubSubController {
         data.createdAt,
       );
       PubSubController.processJournalStatus(data.journalId);
-
-      const notificationService = new NotificationService();
-      const emotionClasses = {
-        HAPPY: 'senang',
-        SAD: 'sedih',
-        ANGER: 'marah',
-        SCARED: 'takut',
-        NEUTRAL: 'netral',
-      };
-      await notificationService.sendToUser(data.userId, {
-        title: 'Jurnal Selesai Dianalisis',
-        body: `Hai, Memothians! kamu sedang ${
-          emotionClasses[data.emotionAnalysis[0].emotion]
-        }`,
-      });
-
+      PubSubController.processNotification(data.userId, data.emotionAnalysis);
       PubSubController.processAchievements(data.userId);
 
       res.status(200).end();
