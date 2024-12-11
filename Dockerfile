@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of the project files
 COPY . .
 
+# Copy the Firebase Service Account file to the root of the image
+COPY firebase-service-account.json /firebase-service-account.json
+
 # Build the TypeScript application
 RUN npm run build
 

@@ -55,10 +55,9 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
           registry: '${{ vars.PROD_REGION }}-docker.pkg.dev'
 
-      - name: Download Firebase Service Account
+      - name: Create Firebase Service Account
         run: |
-          gcloud auth activate-service-account --key-file=${{ secrets.PROD_GOOGLE_CREDENTIALS }}
-          gsutil cp gs://${{ vars.PROD_FCM_BUCKET }}/${{ vars.PROD_FCM_FILE }} .
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > firebase-service-account.json
 
       - name: Build, tag and push container
         id: build-image
