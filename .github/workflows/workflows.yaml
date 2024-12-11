@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [staging, main]
+    branches: [backend, main]
 
 jobs: 
   backend:
