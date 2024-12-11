@@ -57,7 +57,7 @@ jobs:
 
       - name: Download Firebase Service Account
         run: |
-          curl -L "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIGNED_URL }}" -o ${{ vars.PROD_FCM_FILE }}
+          wget "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIGNED_URL }}" -O ${{ vars.PROD_FCM_FILE }}
 
       - name: Build, tag and push container
         id: build-image
