@@ -5,7 +5,7 @@ on:
 jobs: 
   backend:
     if: ${{ github.ref == 'refs/heads/backend' || github.base_ref == 'backend' }}
-    uses: ./.github/workflows/backend.yaml
+    uses: ./.github/workflows/production.yaml
     permissions: 
       id-token: write
       contents: read
