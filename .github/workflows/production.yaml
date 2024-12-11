@@ -34,14 +34,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      # Step 5: Annotate ESLint errors (optional)
-      - name: Annotate ESLint output
-        if: failure()
-        uses: eslint/github-action@v2
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          eslint-args: --format json > eslint-results.json
-
   build-and-release:
     needs: code-quality
     runs-on: ubuntu-latest
