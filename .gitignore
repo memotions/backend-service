@@ -1,4 +1,4 @@
-serviceAccount.json
+firebaseServiceAccount.json
 .env
 package-lock.json
 /node_modules

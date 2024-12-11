@@ -5,7 +5,7 @@ const serviceAccountPath = path.join(
   __dirname,
   '..',
   '..',
-  'serviceAccount.json',
+  'firebaseServiceAccount.json',
 );
 
 const initializeFirebaseApp = () => {
