@@ -57,7 +57,7 @@ jobs:
 
       - name: Download Firebase Service Account
         run: |
-          gsutil cp gs://${{ vars.PROD_FCM_BUCKET }}/${{ vars.PROD_FCM_FILE }} .
+          curl -L "${{ secrets.FIREBASE_SERVICE_ACCOUNT_SIGNED_URL }}" -o ${{ vars.PROD_FCM_FILE }}
 
       - name: Build, tag and push container
         id: build-image
