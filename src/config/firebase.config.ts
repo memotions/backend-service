@@ -1,34 +1,13 @@
 import 'dotenv/config';
 import admin from 'firebase-admin';
-import fs from 'fs';
-import path from 'path';
-import Logger from '../utils/logger';
 
-const serviceAccountUrl = process.env.FIREBASE_SERVICE_ACCOUNT_URL || '';
-
-const initializeFirebaseApp = async () => {
+const initializeFirebaseApp = () => {
   if (!admin.apps.length) {
-    try {
-      const response = await fetch(serviceAccountUrl);
-      const buffer = await response.arrayBuffer();
-
-      const tempFilePath = path.resolve(
-        __dirname,
-        'firebaseServiceAccount.json',
-      );
-      fs.writeFileSync(tempFilePath, Buffer.from(buffer));
-
-      admin.initializeApp({
-        credential: admin.credential.cert(tempFilePath),
-      });
-
-      fs.unlinkSync(tempFilePath);
-
-      Logger.info('Firebase initialized successfully');
-    } catch (error) {
-      Logger.error('Failed to download or initialize Firebase:', error);
-    }
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
   }
+  return admin;
 };
 
 export default initializeFirebaseApp;
