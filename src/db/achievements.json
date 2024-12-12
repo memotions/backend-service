@@ -18,7 +18,7 @@
     "pointsAwarded": 0,
     "type": "JOURNAL_STREAK",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi-0",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi-0.png",
     "code": "pejuang-konsistensi"
   },
   {
@@ -29,7 +29,7 @@
     "pointsAwarded": 10,
     "type": "JOURNAL_STREAK",
     "criteria": 7,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi-1.png",
     "code": "pejuang-konsistensi"
   },
   {
@@ -40,7 +40,7 @@
     "pointsAwarded": 20,
     "type": "JOURNAL_STREAK",
     "criteria": 14,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi-2.png",
     "code": "pejuang-konsistensi"
   },
   {
@@ -51,7 +51,7 @@
     "pointsAwarded": 50,
     "type": "JOURNAL_STREAK",
     "criteria": 30,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi-3.png",
     "code": "pejuang-konsistensi"
   },
   {
@@ -62,7 +62,7 @@
     "pointsAwarded": 0,
     "type": "JOURNAL_COUNT",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-berdedikasi-0.png",
     "code": "penulis-berdedikasi"
   },
   {
@@ -73,7 +73,7 @@
     "pointsAwarded": 5,
     "type": "JOURNAL_COUNT",
     "criteria": 1,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-berdedikasi-1.png",
     "code": "penulis-berdedikasi"
   },
   {
@@ -84,7 +84,7 @@
     "pointsAwarded": 15,
     "type": "JOURNAL_COUNT",
     "criteria": 15,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-berdedikasi-2.png",
     "code": "penulis-berdedikasi"
   },
   {
@@ -95,7 +95,7 @@
     "pointsAwarded": 30,
     "type": "JOURNAL_COUNT",
     "criteria": 50,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-berdedikasi-3.png",
     "code": "penulis-berdedikasi"
   },
   {
@@ -106,7 +106,7 @@
     "pointsAwarded": 0,
     "type": "POSITIVE_COUNT",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penyebar-kebahagiaan-0.png",
     "code": "penyebar-kebahagiaan"
   },
   {
@@ -117,7 +117,7 @@
     "pointsAwarded": 10,
     "type": "POSITIVE_COUNT",
     "criteria": 5,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penyebar-kebahagiaan-1.png",
     "code": "penyebar-kebahagiaan"
   },
   {
@@ -128,7 +128,7 @@
     "pointsAwarded": 20,
     "type": "POSITIVE_COUNT",
     "criteria": 10,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penyebar-kebahagiaan-2.png",
     "code": "penyebar-kebahagiaan"
   },
   {
@@ -139,7 +139,7 @@
     "pointsAwarded": 40,
     "type": "POSITIVE_COUNT",
     "criteria": 20,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penyebar-kebahagiaan-3.png",
     "code": "penyebar-kebahagiaan"
   },
   {
@@ -150,7 +150,7 @@
     "pointsAwarded": 0,
     "type": "RISE_COUNT",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/sang-bangkit-0.png",
     "code": "sang-bangkit"
   },
   {
@@ -161,7 +161,7 @@
     "pointsAwarded": 10,
     "type": "RISE_COUNT",
     "criteria": 3,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/sang-bangkit-1.png",
     "code": "sang-bangkit"
   },
   {
@@ -172,7 +172,7 @@
     "pointsAwarded": 20,
     "type": "RISE_COUNT",
     "criteria": 7,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/sang-bangkit-2.png",
     "code": "sang-bangkit"
   },
   {
@@ -183,7 +183,7 @@
     "pointsAwarded": 50,
     "type": "RISE_COUNT",
     "criteria": 15,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/sang-bangkit-3.png",
     "code": "sang-bangkit"
   },
   {
@@ -194,7 +194,7 @@
     "pointsAwarded": 0,
     "type": "LEVEL",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-veteran-0.png",
     "code": "penulis-veteran"
   },
   {
@@ -205,7 +205,7 @@
     "pointsAwarded": 5,
     "type": "LEVEL",
     "criteria": 5,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-veteran-1.png",
     "code": "penulis-veteran"
   },
   {
@@ -216,7 +216,7 @@
     "pointsAwarded": 15,
     "type": "LEVEL",
     "criteria": 10,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-veteran-2.png",
     "code": "penulis-veteran"
   },
   {
@@ -227,7 +227,7 @@
     "pointsAwarded": 40,
     "type": "LEVEL",
     "criteria": 25,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/penulis-veteran-3.png",
     "code": "penulis-veteran"
   },
   {
@@ -238,7 +238,7 @@
     "pointsAwarded": 0,
     "type": "POSITIVE_STREAK",
     "criteria": 0,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/rantai-senyuman-0.png",
     "code": "rantai-senyuman"
   },
   {
@@ -249,7 +249,7 @@
     "pointsAwarded": 10,
     "type": "POSITIVE_STREAK",
     "criteria": 5,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/rantai-senyuman-1.png",
     "code": "rantai-senyuman"
   },
   {
@@ -260,7 +260,7 @@
     "pointsAwarded": 20,
     "type": "POSITIVE_STREAK",
     "criteria": 10,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/rantai-senyuman-2.png",
     "code": "rantai-senyuman"
   },
   {
@@ -271,7 +271,7 @@
     "pointsAwarded": 40,
     "type": "POSITIVE_STREAK",
     "criteria": 20,
-    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/pejuang-konsistensi",
+    "iconUrl": "https://storage.googleapis.com/memotions-static-assets/achievement-assets/rantai-senyuman-3.png",
     "code": "rantai-senyuman"
   }
 ]

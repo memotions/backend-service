@@ -37,7 +37,7 @@ export default class PubSubController {
       .then(() => {
         Logger.info(`Emotion analysis processed for journal ${journalId}`);
       })
-      .catch(error => Logger.error(error));
+      .catch(error => Logger.error(`[Emotion Analysis] ${error}`));
   }
 
   private static async processFeedback(
@@ -52,7 +52,7 @@ export default class PubSubController {
       .then(() => {
         Logger.info(`Journal feedback processed for journal ${journalId}`);
       })
-      .catch(error => Logger.error(error));
+      .catch(error => Logger.error(`[Feedback] ${error}`));
   }
 
   private static async processNotification(
@@ -77,13 +77,13 @@ export default class PubSubController {
 
     return notificationService
       .sendToUser(userId, {
-        title: 'Analisis Selesai',
+        title: 'Analisis Selesai!',
         body: `Hai, Memothians! ${text} Yuk cek saran selengkapnya!`,
       })
       .then(() => {
         Logger.info(`Notification sent to user ${userId}`);
       })
-      .catch(error => Logger.error(error));
+      .catch(error => Logger.error(`[Notification] ${error}`));
   }
 
   private static async processJournalStatus(journalId: number) {
@@ -102,13 +102,15 @@ export default class PubSubController {
       .then(() => {
         Logger.info(`Achievements processed for user ${userId}`);
       })
-      .catch(error => Logger.error(error));
+      .catch(error => Logger.error(`[Achievements] ${error}`));
   }
 
   public static async processOnJournalPublished(req: Request, res: Response) {
     try {
       const raw = RawEventSchema.parse(req.body);
       const data = DataEventSchema.parse(raw.message.data);
+
+      Logger.debug(`[Pub/Sub] Journal ${JSON.stringify(data)} published`);
 
       const check = await JournalsService.findJournalById(
         data.userId,
