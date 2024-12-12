@@ -169,14 +169,12 @@ export default class AchievementsService {
       .from(achievements)
       .where(
         and(
-          eq(
-            inArray(achievements.type, [
-              'POSITIVE_COUNT',
-              'RISE_COUNT',
-              'POSITIVE_STREAK',
-            ]),
-            gt(achievements.tier, 0),
-          ),
+          inArray(achievements.type, [
+            'POSITIVE_COUNT',
+            'RISE_COUNT',
+            'POSITIVE_STREAK',
+          ]),
+          gt(achievements.tier, 0),
         ),
       );
 
